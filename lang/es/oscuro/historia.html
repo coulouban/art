@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth" style="overflow-x: hidden;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Historia</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+    <link href="../../../theme-tokens.css" rel="stylesheet">
+    <script src="../../../js/palette-display.js"></script>
+        
+    <script>
+        (function() {
+            // Vérifie si un thème a déjà été attribué pour cette session de navigation
+            let currentTheme = sessionStorage.getItem('coulouban-theme');
+            
+            if (!currentTheme) {
+                // S'il n'y a pas de thème, on génère un nombre aléatoire entre 0 et 6
+                currentTheme = Math.floor(Math.random() * 7).toString();
+                // On le sauvegarde pour qu'il reste le même en changeant de page
+                sessionStorage.setItem('coulouban-theme', currentTheme);
+            }
+            
+            // Applique le thème à la balise <html> de la page
+            document.documentElement.setAttribute('data-theme', currentTheme);
+        })();
+    </script>
+    
+    <style>
+        html, body { max-width: 100%; overflow-x: hidden; background-color: #030305; color: #fdfcf8; }
+        body { font-family: 'Montserrat', sans-serif; font-weight: 300; }
+        h1, h2, h3, .font-title { font-family: 'Cormorant Garamond', serif; }
+        canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; opacity: 0.8; }
+        #page-transition { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #030305; z-index: 9999; pointer-events: none; transition: opacity 1.5s ease-in-out; }
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .text-glow { text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 0, 0, 0.8); }
+        .color-gold { color: var(--color-gold); }
+        .color-violet { color: var(--color-violet); }
+        .color-histoire { color: var(--color-histoire); }
+        .color-poesie { color: var(--color-poesie); }
+        .color-galerie { color: var(--color-galerie); }
+        .color-experience { color: var(--color-experience); }
+        .color-contact { color: var(--color-contact); }
+    </style>
+</head>
+<body class="antialiased selection:bg-violet-700 selection:text-white flex flex-col min-h-screen">
+
+    <div id="page-transition"></div>
+    <div id="canvas-container"></div>
+
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-50 text-white bg-black/10 backdrop-blur-md border-b border-white/5 relative">     
+
+        <div class="max-w-7xl mx-auto px-6 md:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6 w-full">
+                        <!-- Groupe gauche: Logo + Langue + Actions -->
+            <div class="flex flex-col items-center md:items-start gap-4 w-full md:w-auto">
+
+                <!-- Groupe 1: Logo + Sélecteur de langue -->
+                <div class="flex items-center gap-4 md:gap-6">
+                    <a href="home.html" class="text-2xl font-title tracking-widest uppercase hover:opacity-70 transition-opacity text-white">Coulouban</a>
+                    <div class="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase font-medium border-l border-white/20 pl-4 md:pl-6 text-white">
+                        <a href="../../fr/obscur/histoire.html" class="text-white/60 hover:text-white transition-colors">FR</a>
+                        <span class="text-white/40">/</span>
+                        <a href="../../en/dark/story.html" class="text-white/60 hover:text-white transition-colors">EN</a>
+                        <span class="text-white/40">/</span>
+                        <span class="text-white">ES</span>
+                        <span class="text-white/40">/</span>
+                        <a href="../../it/oscuro/storia.html" class="text-white/60 hover:text-white transition-colors">IT</a>
+                    </div>
+                </div>
+                <!-- Groupe 3: Actions (Boutons cinématique + mode clair/sombre) -->
+                <div id="nav-actions" class="flex items-center gap-4 md:gap-6"></div>
+            </div>
+
+            <!-- Groupe 2: Menu principal -->
+            <div class="hidden md:flex space-x-8 text-[10px] md:text-xs uppercase tracking-[0.3em] font-medium">
+                <a href="historia.html" class="color-histoire drop-shadow-md border-b border-histoire pb-1">Historia</a>
+                <a href="poesia.html" class="color-poesie hover:text-white transition-colors drop-shadow-md">Poesía</a>
+                <a href="galeria.html" class="color-galerie hover:text-white transition-colors drop-shadow-md">Galería</a>
+                <a href="experiencia.html" class="color-experience hover:text-white transition-colors drop-shadow-md">La experiencia</a>
+                <a href="contacto.html" class="color-contact hover:text-white transition-colors drop-shadow-md">Contacto</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL (z-index: 10) -->
+    <main class="relative z-10 pt-40 pb-32 px-6 md:px-12 max-w-7xl mx-auto flex flex-col space-y-40 flex-grow w-full">
+        <header class="max-w-3xl text-left reveal text-glow">
+            <p class="text-[10px] md:text-xs tracking-[0.4em] color-histoire uppercase mb-6 drop-shadow-sm">Génesis</p>
+            <h1 class="text-5xl md:text-7xl font-title leading-tight mb-8 color-histoire">
+                La metamorfosis<br>
+                <span class="italic color-histoire">del silencio.</span>
+            </h1>
+        </header>
+        <section class="max-w-2xl reveal text-glow">
+            <h2 class="text-4xl font-title mb-8 color-histoire">El vientre de la roca</h2>
+            <div class="font-light text-gray-400 leading-relaxed text-lg space-y-6">
+                <p>Hace muchos años, el tumulto del mundo se volvió demasiado pesado. Coulouban se ocultó detrás de la roca para buscar lo que ya no se escuchaba en la superficie.</p>
+                <p>En el silencio absoluto de una cueva, desprovisto de relojes y referencias, inició una conversación íntima con el silencio. Allí, en esa penumbra fértil envuelta por una luz divina, nació Coulouban. Un retiro aislado donde el instrumento dejó de ser un objeto y se convirtió en una extensión de su alma. Esa misma alma con la que aprende a amar día tras día.</p>
+            </div>
+        </section>
+        <section class="max-w-2xl reveal self-end text-right text-glow mt-12">
+            <h2 class="text-4xl font-title mb-8 color-histoire">La necesidad del sonido</h2>
+            <div class="font-light text-gray-400 leading-relaxed text-lg space-y-6">
+                <p>En tres días, acunado por su primer acordeón, abrió una grieta en el espacio-tiempo. El tiempo del aprendizaje fue barrido por la necesidad del aliento.</p>
+                <p>Desde aquel día, ya no toca música en el sentido clásico : la deja pasar a través de él. Se convierte en el puente entre el silencio de la cueva y el caos del mundo moderno, transformando el acordeón en un difusor de frecuencias armónicas.</p>
+            </div>
+        </section>
+        <section class="max-w-3xl mx-auto text-center reveal text-glow mt-20">
+            <h2 class="text-4xl font-title mb-8 color-histoire">Una orquesta invisible</h2>
+            <div class="font-light text-gray-400 leading-relaxed text-lg space-y-6">
+                <p>Lo que oye en el secreto de su mente es una simetría matemática, un lenguaje que a veces las palabras no pueden contener. Aquí comienza el resto de su obra.</p>
+                <p>Si no la toca, la escribe. Si no la escribe, la pinta.</p>
+            </div>
+            <div class="mt-16">
+                <a href="poesie.html" class="inline-block border border-current bg-black/40 backdrop-blur-sm px-10 py-5 uppercase tracking-[0.2em] text-[10px] md:text-xs font-semibold color-poesie hover:text-white transition-colors drop-shadow-md">Descubrir la Poesía</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- INICIO DEL FOOTER PROFESIONAL              -->
+    <!-- ========================================== -->
+
+    <footer class="w-full bg-[#020203] border-t border-white/10 text-white py-16 mt-auto z-20 relative">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center md:items-start space-y-10 md:space-y-0 text-center md:text-left">
+            
+            <!-- Marca y copyright -->
+            <div class="flex flex-col items-center md:items-start space-y-4">
+                <a href="home.html" class="coulouban-rainbow-mix text-3xl font-title tracking-widest uppercase hover:opacity-70 transition-opacity">Coulouban</a>
+                <span class="coulouban-rainbow-forest font-light tracking-[0.2em] text-gray-500 uppercase">El traductor de lo invisible</span>
+                <p class="text-[10px] tracking-[0.1em] text-gray-600 uppercase pt-4 hidden md:block">Webmaster : Coulouban<br><br>© 2026 Coulouban. Todos los derechos reservados.</p>
+            </div>
+
+            <!-- Enlaces rapidos -->
+            <div class="flex flex-col items-center md:items-start space-y-3 text-xs tracking-[0.2em] uppercase font-medium">
+                <a href="historia.html" class="color-histoire hover:text-white border-histoire transition-colors">Historia</a>
+                <a href="poesia.html" class="color-poesie hover:text-white transition-colors">Poesía</a>
+                <a href="galeria.html" class="color-galerie hover:text-white transition-colors">Galería</a>
+                <a href="experiencia.html" class="color-experience hover:text-white transition-colors">La experiencia</a>
+                <a href="contacto.html" class="color-contact hover:text-white transition-colors">Contacto</a>
+                <a href="../../../accueil/soon.html" target="_blank" class="coulouban-rainbow hover:text-white transition-colors mt-2">Tienda</a>
+            </div>
+
+            <!-- Redes Sociales (Iconos SVG Puros) -->
+            <div class="social-newsletter-wrapper flex flex-col items-center space-y-6">
+                <!-- Icônos sociales -->
+                <div class="flex space-x-6">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/coulouban369/" target="_blank" aria-label="Instagram" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 1.77-6.98 6.276C.014 8.336 0 8.744 0 12c0 3.259.014 3.667.072 4.947.2 4.358 1.77 6.78 6.276 6.98 1.28.058 1.689.072 4.947.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-1.771 6.979-6.276.059-1.28.073-1.689.073-4.947 0-3.259-.014-3.667-.072-4.947-.196-4.354-1.778-6.78-6.276-6.98-1.28-.058-1.688-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    </a>
+                    <!-- YouTube -->
+                    <a href="https://www.youtube.com/@coulouban369" target="_blank" aria-label="YouTube" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                    </a>
+                    <!-- Spotify -->
+                    <a href="https://open.spotify.com/intl-fr/artist/40ZLiin1GRg2mBDbgf1gbN?si=x7ZT8P-2TGKA66u-Rfu88Q" target="_blank" aria-label="Spotify" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.24.394-.756.522-1.15.281-3.15-1.926-7.114-2.361-11.782-1.293-.453.104-.913-.18-1.018-.632-.104-.453.18-.913.633-1.018 5.093-1.164 9.479-.668 13.036 1.512.395.241.523.757.281 1.15zm1.428-3.189c-.301.492-.938.647-1.43.346-3.603-2.215-9.13-2.827-13.687-1.543-.54.152-1.106-.162-1.258-.702-.152-.54.162-1.106.702-1.258 5.251-1.482 11.36-1.22 15.672 1.433.492.301.647.938.346 1.43zm.116-3.342C14.779 8.213 8.571 8 5.006 9.083c-.636.195-1.309-.163-1.504-.799-.195-.636.163-1.309.799-1.504 4.084-1.24 10.96-1.014 15.82 1.872.573.34.761 1.08.421 1.653-.34.573-1.08.761-1.653.421z"/></svg>
+                    </a>
+                </div>
+                <!-- Script newsletter -->
+            </div>
+        </div>
+
+        <!-- 👇 NOUVEAU : copyright mobile (apparaît seulement sur mobile) -->
+        <div class="block md:hidden text-center mt-8">
+            <p class="text-[10px] tracking-[0.1em] text-gray-600 uppercase">
+                Webmaster : Coulouban<br>© 2026 Coulouban. Todos derechos reservados.
+            </p>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- FIN DEL PIE DE PAGINA PROFESIONAL          -->
+    <!-- ========================================== -->
+
+    <script src="../../../js/animation-config.js"></script>
+    <script>
+        (function() {
+            // Configuration par défaut (harmonisée avec galerie.html)
+            const ANIM_CFG = window.AnimationConfig || {
+                mouseInteraction: { sensitivity: 0.8, attractionForce: 0.045, damping: 0.05 },
+                colorDynamics: { cycleSpeed: 0.9 }
+            };
+
+            const getThemeColor = (name, fallback) => {
+                const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+                return new THREE.Color(value || fallback);
+            };
+
+            // Transition & scroll reveal
+            window.addEventListener('load', () => {
+                setTimeout(() => { document.getElementById('page-transition').style.opacity = '0'; }, 100);
+            });
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+            }, { threshold: 0.15 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+            // --- 3D Scene : Fractal Torus (corrigé, sans "normal") ---
+            let scene, camera, renderer, mandelTorusMesh;
+            let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
+            const halfX = window.innerWidth / 2, halfY = window.innerHeight / 2;
+            let scrollDrift = 0;
+            window.addEventListener('scroll', () => { scrollDrift = window.scrollY * 0.001; });
+
+            function init3D() {
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 3500);
+                camera.position.set(0, 400, 700);
+                camera.lookAt(0, -50, 0);
+
+                renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                const pixelRatio = Math.min(window.devicePixelRatio, 1.5);
+                renderer.setPixelRatio(pixelRatio);
+                document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+                const count = 90000;
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(count * 3);
+                const aU = new Float32Array(count);
+                const aV = new Float32Array(count);
+                const aRandom = new Float32Array(count);
+                for (let i = 0; i < count; i++) {
+                    aU[i] = Math.random() * Math.PI * 2;
+                    aV[i] = Math.random() * Math.PI * 2;
+                    aRandom[i] = Math.random();
+                    positions[i*3] = 0; positions[i*3+1] = 0; positions[i*3+2] = 0;
+                }
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('aU', new THREE.BufferAttribute(aU, 1));
+                geometry.setAttribute('aV', new THREE.BufferAttribute(aV, 1));
+                geometry.setAttribute('aRandom', new THREE.BufferAttribute(aRandom, 1));
+
+                const vertexShader = `
+                    uniform float uTime;
+                    uniform float uPixelRatio;
+                    attribute float aU;
+                    attribute float aV;
+                    attribute float aRandom;
+                    varying float vElevation;
+                    varying float vFlash;
+
+                    void main() {
+                        float t = uTime * 0.6;
+                        float radiusOut = 320.0;
+                        float tubeBase = 90.0;
+                        
+                        // Fractal iteration (safe, bounded)
+                        vec3 iterPos = vec3(aU * 2.0, aV * 5.0, t * 0.8);
+                        float fractalDistort = 0.0;
+                        float power = 1.0;
+                        float freq = 1.0;
+                        for (int i = 0; i < 4; i++) {
+                            vec3 fold = abs(mod(iterPos * freq, 6.0) - 3.0);
+                            float subNode = sin(fold.x) * cos(fold.y) * sin(fold.z);
+                            fractalDistort += subNode * power;
+                            power *= 0.5;
+                            freq *= 2.2;
+                        }
+                        
+                        float dynamicTube = tubeBase + fractalDistort * 50.0;
+                        dynamicTube = max(dynamicTube, 15.0);
+                        
+                        float xFinal = (radiusOut + dynamicTube * cos(aU)) * cos(aV);
+                        float yFinal = dynamicTube * sin(aU);
+                        float zFinal = (radiusOut + dynamicTube * cos(aU)) * sin(aV);
+                        
+                        vec3 finalPos = vec3(xFinal, yFinal, zFinal);
+                        // Ajout d'une légère perturbation (sans utiliser "normal")
+                        vec3 windNoise = normalize(finalPos) * (aRandom - 0.5) * 12.0;
+                        vec4 mvPos = modelViewMatrix * vec4(finalPos + windNoise, 1.0);
+                        gl_PointSize = (1.5 + aRandom * 1.8) * uPixelRatio * (550.0 / max(-mvPos.z, 1.0));
+                        gl_Position = projectionMatrix * mvPos;
+                        
+                        vElevation = clamp(fractalDistort, -1.0, 1.0);
+                        vFlash = 0.5 + 0.5 * sin(uTime * 3.5 + aRandom * 80.0);
+                    }
+                `;
+
+                const fragmentShader = `
+                    uniform float uTime;
+                    uniform vec3 uViolet;
+                    uniform vec3 uExperience;
+                    uniform vec3 uGold;
+                    uniform vec3 uhistoire;
+                    uniform vec3 uPoesie;
+                    uniform vec3 uGalerie;
+                    uniform vec3 uContact;
+                    varying float vElevation;
+                    varying float vFlash;
+
+                    vec3 getCosmicColor(float t) {
+                        t = fract(t);
+                        float step = 1.0 / 7.0;
+                        if (t < step) return mix(uViolet, uhistoire, t/step);
+                        if (t < step * 2.0) return mix(uhistoire, uContact, (t - step)/step);
+                        if (t < step * 3.0) return mix(uContact, uExperience, (t - step * 2.0)/step);
+                        if (t < step * 4.0) return mix(uExperience, uGold, (t - step * 3.0)/step);
+                        if (t < step * 5.0) return mix(uGold, uPoesie, (t - step * 4.0)/step);
+                        if (t < step * 6.0) return mix(uPoesie, uGalerie, (t - step * 5.0)/step);
+                        return mix(uGalerie, uViolet, (t - step * 6.0)/step);
+                    }
+
+                    void main() {
+                        float dist = distance(gl_PointCoord, vec2(0.5));
+                        if (dist > 0.5) discard;
+                        float colorShift = (vElevation * 0.5) - (uTime * 0.12) + (vFlash * 0.15);
+                        vec3 color = getCosmicColor(colorShift);
+                        float alpha = (0.5 - dist) * 2.5 * vFlash * 1.6;
+                        gl_FragColor = vec4(color, alpha);
+                    }
+                `;
+
+                const material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        uTime: { value: 0 },
+                        uPixelRatio: { value: pixelRatio },
+                        uViolet: { value: getThemeColor('--color-violet', '#4c1d95') },
+                        uExperience: { value: getThemeColor('--color-experience', '#10b981') },
+                        uGold: { value: getThemeColor('--color-gold', '#fcd34d') },
+                        uhistoire: { value: getThemeColor('--color-histoire', '#8b5cf6') },
+                        uPoesie: { value: getThemeColor('--color-poesie', '#f59e0b') },
+                        uGalerie: { value: getThemeColor('--color-galerie', '#ef4444') },
+                        uContact: { value: getThemeColor('--color-contact', '#06b6d4') }
+                    },
+                    vertexShader: vertexShader,
+                    fragmentShader: fragmentShader,
+                    transparent: true,
+                    depthWrite: false,
+                    blending: THREE.AdditiveBlending
+                });
+
+                mandelTorusMesh = new THREE.Points(geometry, material);
+                mandelTorusMesh.frustumCulled = false;
+                mandelTorusMesh.position.y = -50;
+                mandelTorusMesh.rotation.x = Math.PI / 8;
+                scene.add(mandelTorusMesh);
+
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = (e.clientX - halfX) * ANIM_CFG.mouseInteraction.sensitivity;
+                    mouseY = (e.clientY - halfY) * ANIM_CFG.mouseInteraction.sensitivity;
+                });
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                    material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 1.5);
+                });
+            }
+
+            const clock = new THREE.Clock();
+
+            function animate3D() {
+                requestAnimationFrame(animate3D);
+                if (!mandelTorusMesh) return;
+                const time = clock.getElapsedTime();
+                
+                targetX = mouseX * ANIM_CFG.mouseInteraction.attractionForce;
+                targetY = mouseY * ANIM_CFG.mouseInteraction.attractionForce;
+                
+                mandelTorusMesh.rotation.x += ANIM_CFG.mouseInteraction.damping * (targetY - mandelTorusMesh.rotation.x + Math.PI / 8);
+                mandelTorusMesh.rotation.z += ANIM_CFG.mouseInteraction.damping * (targetX - mandelTorusMesh.rotation.z);
+                mandelTorusMesh.rotation.y += 0.0012 + scrollDrift * 0.02;
+                
+                mandelTorusMesh.material.uniforms.uTime.value = time * ANIM_CFG.colorDynamics.cycleSpeed;
+                renderer.render(scene, camera);
+            }
+
+            init3D();
+            animate3D();
+        })();
+    </script>
+    <script src="../../../js/newsletter.js"></script>
+    <script src="../../../js/theme-toggle.js"></script>
+</body>
+</html>

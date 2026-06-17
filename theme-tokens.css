@@ -1,0 +1,181 @@
+/* ========================================================= */
+/* VARIABLES GLOBALES CONSTANTES                             */
+/* ========================================================= */
+:root {
+    --bg-deep: #030305;
+    --bg-deeper: #020203;
+    --text-primary: #fdfcf8;
+    --canvas-dark: #040515;
+    --canvas-highlight-gold: #f2e633;
+}
+
+/* ========================================================= */
+/* THEME 0 : Prisme de Bismuth (Cristal Électrique pur et saturé) */
+/* ========================================================= */
+:root, [data-theme="0"] {
+    --color-violet: #9b2cff;     /* Violet Cristal Électrique */
+    --color-histoire: #0044ff;   /* Bleu Saphir Synthétique */
+    --color-contact: #00e5ff;    /* Cyan Diamant */
+    --color-experience: #00ff66; /* Vert Émeraude Laser */
+    --color-gold: #ffe600;       /* Or Solaire */
+    --color-poesie: #ff5500;     /* Plasma Orange */
+    --color-galerie: #ff0055;    /* Rubis Magnétique */
+}
+
+/* ========================================================= */
+/* THEME 1 : Opale Angélique (Aura prismatique douce et luminescente) */
+/* ========================================================= */
+[data-theme="1"] {
+    --color-violet: #d0a1ff;     /* Améthyste Poudrée */
+    --color-histoire: #9ba1ff;   /* Lapis Polaire */
+    --color-contact: #a1eeff;    /* Cyan Nacré */
+    --color-experience: #a1ffcc; /* Jade Luminescent */
+    --color-gold: #ffffa1;       /* Citrine Cristalline */
+    --color-poesie: #ffcaa1;     /* Éclat Pêche Aura */
+    --color-galerie: #ffa1cc;    /* Quartz Rose Frappe */
+}
+
+/* ========================================================= */
+/* THEME 2 : Quartz Cybernétique (Spectre profond et contrastes violents) */
+/* ========================================================= */
+[data-theme="2"] {
+    --color-violet: #6a00ff;     /* Violet UV / Lumière Noire */
+    --color-histoire: #0011ff;   /* Indigo Hyperspatial */
+    --color-contact: #00ffff;    /* Aigue-Marine Absolue */
+    --color-experience: #33ff00; /* Kryptonite Active */
+    --color-gold: #ffd000;       /* Lueur d'Ambre Intense */
+    --color-poesie: #ff3300;     /* Lave au Néon */
+    --color-galerie: #ff0044;    /* Sang Cristallisé */
+}
+
+/* ========================================================= */
+/* THEME 3 : Réfraction Fluorite (Dominante froides polaires vers néon) */
+/* ========================================================= */
+[data-theme="3"] {
+    --color-violet: #7d33ff;     /* Violet Fluorite Claire */
+    --color-histoire: #3388ff;   /* Océan Électrifié */
+    --color-contact: #33ffff;    /* Bassin Glacé Réfractif */
+    --color-experience: #00fa9a; /* Vert Malachite Brillant */
+    --color-gold: #d4ff33;       /* Émeraude Citronnée */
+    --color-poesie: #ff8c33;     /* Étincelle Orangée */
+    --color-galerie: #ff337d;    /* Tourmaline Rose Vif */
+}
+
+/* ========================================================= */
+/* THEME 4 : Héliodore Spectral (Prisme aux tonalités ardentes et riches) */
+/* ========================================================= */
+[data-theme="4"] {
+    --color-violet: #c800ad;     /* Aubergine Abyssale */
+    --color-histoire: #6100bbbc;   /* Ciel d'Obsidienne */
+    --color-contact: #00505e;    /* Canard Gemme */
+    --color-experience: #2e8c20; /* Vert Moldavite */
+    --color-gold: #f1b300;       /* Or en Fusion (Sunstone) */
+    --color-poesie: #e65c00;     /* Braise Étincelante */
+    --color-galerie: #bf0811;    /* Grenat Incandescent */
+}
+
+/* ========================================================= */
+/* THEME 5 : Titanium Irisé (Effet métal chromé et arc-en-ciel vif) */
+/* ========================================================= */
+[data-theme="5"] {
+    --color-violet: #b000ff;     /* Magenta Hurlant */
+    --color-histoire: #4800ff;   /* Ultramarine Vibrant */
+    --color-contact: #00aaff;    /* Reflet d'Acier Bleu */
+    --color-experience: #00ffb3; /* Lueur Météorite Vert d'Eau */
+    --color-gold: #ffff00;       /* Flash Canari Titane */
+    --color-poesie: #ff0088;     /* Hot Pink Chrome */
+    --color-galerie: #d90022;    /* Carmin Tranchant */
+}
+
+/* ========================================================= */
+/* THEME 6 : Euphorie Minérale (Cristal pur : Joyeux, percutant, royal) */
+/* ========================================================= */
+[data-theme="6"] {
+    --color-violet: #9900cc;     /* Riche Améthyste Royale */
+    --color-histoire: #0066cc;   /* Éclat Saphir Époustouflant */
+    --color-contact: #00e6e6;    /* Apatite Cyan Flash */
+    --color-experience: #00cc66; /* Clarté Émeraude */
+    --color-gold: #fadb00;       /* Étoile de Topaze Jaune */
+    --color-poesie: #e67300;     /* Feu Mandarine Cristallin */
+    --color-galerie: #cc0033;    /* Rubis Éclairé */
+}
+
+
+/* ========================================================= */
+/* UTILITAIRES DE BORDURES DYNAMIQUES                        */
+/* ========================================================= */
+.border-histoire {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--color-histoire);
+}
+
+.border-poesie {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--color-poesie);
+}
+
+.border-galerie {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--color-galerie);
+}
+
+.border-experience {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--color-experience);
+}
+
+.border-contact {
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: var(--color-contact);
+}
+
+/* ========================================================= */
+/* BORDURE ARC-EN-CIEL (dégradé linéaire)                    */
+/* ========================================================= */
+.border-rainbow {
+    border: 1px solid transparent;
+    border-image: linear-gradient(90deg, 
+        #ff0055, #00e5ff, #39ff14, #d600ff, #ffd700) 1;
+    border-image-slice: 1;
+}
+
+/* ========================================================= */
+/* FONDS DYNAMIQUES (BACKGROUND)                            */
+/* ========================================================= */
+.bg-histoire {
+    background-color: var(--color-histoire);
+}
+
+.bg-poesie {
+    background-color: var(--color-poesie);
+}
+
+.bg-galerie {
+    background-color: var(--color-galerie);
+}
+
+.bg-experience {
+    background-color: var(--color-experience);
+}
+
+.bg-contact {
+    background-color: var(--color-contact);
+}
+
+/* Fond arc-en-ciel (dégradé) */
+.bg-rainbow {
+    background: linear-gradient(90deg, 
+        #ff0055, #00e5ff, #39ff14, #d600ff, #ffd700);
+    background-size: 300% 300%;
+    animation: rainbowBgShift 4s linear infinite;
+}
+
+@keyframes rainbowBgShift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}

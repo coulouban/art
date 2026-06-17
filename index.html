@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coulouban</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/animation-config.js"></script>
+    <link href="theme-tokens.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@100;200;300;400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            background-color: #020203;
+            color: #fdfcf8;
+            font-family: 'Montserrat', sans-serif;
+            cursor: pointer;
+        }
+        
+        h1, h2, h3, .font-title { font-family: 'Cormorant Garamond', serif; }
+        .text-glow { text-shadow: 0 4px 40px rgba(0,0,0, 0.9), 0 0 75px rgba(6, 182, 212, 0.35); }
+
+        /* ============================================ */
+        /* PROGRESS BAR & LOADING SCREEN                */
+        /* ============================================ */
+        #progress-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 35%;
+            transition: opacity 1s ease-in-out;
+            pointer-events: none;
+        }
+
+        #progress-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #progress-container {
+            width: 300px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-in-out;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            background: linear-gradient(135deg, var(--color-histoire), var(--color-contact), var(--color-experience), var(--color-galerie), var(--color-poesie));
+            background-size: 300% 300%;
+            animation: fillProgress 0.5s ease-in-out forwards, couloubanGradientCycle 6s linear infinite;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fillProgress {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+
+        /* ============================================ */
+        /* TRANSITION VEIL                              */
+        /* ============================================ */
+        #black-veil {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #020203;
+            z-index: 9999;
+            transition: opacity 2s cubic-bezier(0.4, 0.0, 0.2, 1);
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        /* ============================================ */
+        /* GALLERY GRID MODE                           */
+        /* ============================================ */
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        }
+
+        #gallery-grid-container {
+            position: relative;
+            width: 100%;
+            display: none;
+            z-index: 1;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        #gallery-grid-container.active {
+            display: block;
+        }
+
+        .clickable-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 11;
+            cursor: pointer;
+        }
+
+        .gallery-grid {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(2px);
+            z-index: 1;
+        }
+
+        .photo-item {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: 0 25px 40px rgba(0, 0, 0, 0.4);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            background: #1a1a2e;
+            opacity: 0;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .photo-item:hover {
+            z-index: 5;
+            transform: scale(1.05);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+            filter: brightness(0.85) contrast(1.05);
+            display: block;
+        }
+
+        .photo-item:hover img {
+            transform: scale(1.08);
+            filter: brightness(1) contrast(1.1);
+        }
+
+        .overlay-text {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 30px 20px 15px;
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 300;
+            transform: translateY(100%);
+            transition: transform 0.4s ease;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .photo-item:hover .overlay-text {
+            transform: translateY(0);
+        }
+
+        /* ============================================ */
+        /* ANIMATION 1: CHLADNI WALTZ (3D)             */
+        /* ============================================ */
+        #viewport-3d-anim1 {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            z-index: 10;
+            perspective: 1200px;
+            overflow: hidden;
+            background-color: #020203;
+        }
+
+        #viewport-3d-anim1.active {
+            display: block;
+        }
+
+        #chladni-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .photo-card-anim1 {
+            position: absolute;
+            width: 300px;
+            height: 450px;
+            margin-top: -225px;
+            margin-left: -150px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 6px;
+            box-shadow: 0 45px 95px rgba(0, 0, 0, 0.9), inset 0 0 35px rgba(0,0,0,0.4);
+            filter: grayscale(35%) sepia(20%) brightness(0.7) contrast(1.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            transition: opacity 1.8s ease-in-out;
+            opacity: 0;
+            will-change: transform;
+        }
+
+        /* ============================================ */
+        /* ANIMATION 2: CINEMATIC GALLERY              */
+        /* ============================================ */
+        .animation-2 .photo-item {
+            aspect-ratio: 2 / 3;
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .photo-item:nth-child(1) { animation-delay: 0s, 0s; }
+        .photo-item:nth-child(2) { animation-delay: 0.1s, 0.5s; }
+        .photo-item:nth-child(3) { animation-delay: 0.2s, 1s; }
+        .photo-item:nth-child(4) { animation-delay: 0.3s, 1.5s; }
+        .photo-item:nth-child(5) { animation-delay: 0.4s, 2s; }
+        .photo-item:nth-child(6) { animation-delay: 0.5s, 2.5s; }
+        .photo-item:nth-child(7) { animation-delay: 0.6s, 3s; }
+        .photo-item:nth-child(8) { animation-delay: 0.7s, 3.5s; }
+        .photo-item:nth-child(9) { animation-delay: 0.8s, 4s; }
+
+        /* ============================================ */
+        /* ANIMATION 3 : COSMIC CAROUSEL              */
+        /* ============================================ */
+        #viewport-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            z-index: 10;
+            perspective: 1200px;
+            overflow: hidden;
+            background-color: #020203;
+        }
+
+        #viewport-3d.active {
+            display: block;
+        }
+
+        #world-cylinder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .photo-card {
+            position: absolute;
+            width: 300px;
+            height: 450px;
+            margin-top: -225px;
+            margin-left: -150px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 6px;
+            box-shadow: 0 45px 95px rgba(0, 0, 0, 0.9), inset 0 0 35px rgba(0,0,0,0.4);
+            filter: grayscale(35%) sepia(20%) brightness(0.7) contrast(1.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            transition: opacity 1.8s ease-in-out;
+            opacity: 0;
+            will-change: transform;
+        }
+
+        /* ============================================ */
+        /* TEXT OVERLAY (shared for all)                */
+        /* ============================================ */
+        #text-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            text-align: center;
+        }
+
+        /* ============================================ */
+        /* ANIMATION INDICATOR/SELECTOR                 */
+        /* ============================================ */
+        #animation-indicator {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 51;
+            font-size: 10px;
+            letter-spacing: 2px;
+            padding: 8px 20px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            pointer-events: all;
+            white-space: nowrap;
+            font-weight: 500;
+            text-transform: uppercase;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7));
+            border: 2px solid transparent;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                linear-gradient(135deg, var(--color-histoire), var(--color-contact), var(--color-experience), var(--color-galerie), var(--color-poesie));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            color: #fdfcf8;
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.6), 0 0 40px rgba(6, 182, 212, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #animation-indicator:hover {
+            box-shadow: 0 0 25px rgba(124, 58, 237, 0.8), 0 0 50px rgba(6, 182, 212, 0.5);
+        }
+
+        #animation-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 8px;
+            min-width: 200px;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8));
+            border: 2px solid transparent;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
+                linear-gradient(135deg, var(--color-histoire), var(--color-contact), var(--color-experience), var(--color-galerie), var(--color-poesie));
+            background-origin: border-box;
+            background-clip: padding-box, border-box;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(124, 58, 237, 0.3);
+            display: none;
+            flex-direction: column;
+            gap: 0;
+            z-index: 52;
+            overflow: hidden;
+        }
+
+        #animation-dropdown.open {
+            display: flex;
+        }
+
+        .animation-option {
+            padding: 10px 16px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: #fdfcf8;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .animation-option:last-child {
+            border-bottom: none;
+        }
+
+        .animation-option:hover {
+            background: rgba(124, 58, 237, 0.3);
+            color: #ffffff;
+        }
+
+        .animation-option.active {
+            background: rgba(124, 58, 237, 0.5);
+            color: #ffffff;
+        }
+
+        /* ============================================ */
+        /* CLICK HINT BUTTON STYLING                    */
+        /* ============================================ */
+        .click-hint {
+            background: rgba(0,0,0,0.5) !important;
+            border: 2px solid transparent !important;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+                linear-gradient(135deg, var(--color-histoire), var(--color-contact), var(--color-experience), var(--color-galerie), var(--color-poesie)) !important;
+            background-origin: border-box !important;
+            background-clip: padding-box, border-box !important;
+            border-radius: 30px !important;
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.5), 0 0 30px rgba(6, 182, 212, 0.2) !important;
+        }
+
+        /* ============================================ */
+        /* RESPONSIVE                                   */
+        /* ============================================ */
+        @media (max-width: 768px) {
+            .gallery-grid {
+                gap: 10px;
+                padding: 15px;
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-800">
+
+    <!-- Progress Screen (Loading) -->
+    <div id="progress-screen">
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- Black Veil for transitions -->
+    <div id="black-veil"></div>
+
+    <!-- Gallery Grid Container (animations 1-2) -->
+    <div id="gallery-grid-container">
+        <div class="clickable-container"></div>
+        <div id="gallery" class="gallery-grid"></div>
+    </div>
+
+    <!-- 3D Viewport Container (animation 1 - Chladni Waltz) -->
+    <div id="viewport-3d-anim1">
+        <div id="chladni-container"></div>
+    </div>
+
+    <!-- 3D Viewport Container (animation 3 - Cosmic Carousel) -->
+    <div id="viewport-3d">
+        <div id="world-cylinder"></div>
+    </div>
+
+    <!-- Text Overlay (shared) -->
+    <div id="text-overlay">
+        <div class="hero-title relative flex flex-col items-center justify-center">
+            <h1 class="text-4xl md:text-8xl tracking-[0.2em] font-light uppercase">COU·LOU·BAN</h1>
+            <p class="text-[9px] md:text-[11px] uppercase tracking-[0.6em] text-white mb-6 font-light">THE TRANSLATOR OF THE INVISIBLE</p>
+        </div>
+
+        <div class="click-hint absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-4 animate-pulse coulouban-rainbow-mix">
+            <span class="w-10 h-[1px] bg-amber-500/60"></span>
+            <p class="text-[10px] uppercase tracking-[0.4em] coulouban-rainbow-mix font-medium">✦ CLICK ANYWHERE TO ENTER ✦</p>
+            <span class="w-10 h-[1px] bg-amber-500/60"></span>
+        </div>
+    </div>
+
+    <!-- Animation Selector (top) -->
+    <div id="animation-indicator">
+        <span id="animation-name">✦ FLOATING GALLERY ✦</span>
+        <div id="animation-dropdown">
+            <div class="animation-option" data-animation="1">✦ CHLADNI WALTZ ✦</div>
+            <div class="animation-option" data-animation="2">✦ CINEMATIC VALLEY ✦</div>
+            <div class="animation-option" data-animation="3">✦ COSMIC CAROUSEL ✦</div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // PHOTO DATABASE
+        // ==========================================
+        const PHOTOS_FOLDER = 'photos/';
+        const PHOTOS = [
+            'photo1.jpg', 'photo2.jpg', 'photo3.jpg', 'photo4.jpg', 'photo5.jpg',
+            'photo6.jpg', 'photo7.jpg', 'photo8.jpg', 'photo9.jpg', 'photo10.jpg',
+            'photo11.jpg', 'photo12.jpg', 'photo13.jpg', 'photo14.jpg', 'photo15.jpg',
+            'photo16.jpg', 'photo17.jpg', 'photo18.jpg'
+        ];
+
+        let currentAnimation = null;
+        let animationData = {};
+
+        // ==========================================
+        // UTILITY FUNCTIONS
+        // ==========================================
+        function shuffleArray(array) {
+            const copy = [...array];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function selectRandomPhotos(photoArray, count) {
+            const shuffled = shuffleArray(photoArray);
+            return shuffled.slice(0, count);
+        }
+
+        // ==========================================
+        // ANIMATIONS 2 BY DEFAULT
+        // ==========================================
+        let selectedAnimation = 2;
+        console.log('Selected Animation:', selectedAnimation);
+
+        // Set animation indicator and setup selector
+        const animationNames = ['CHLADNI WALTZ', 'CINEMATIC VALLEY', 'COSMIC CAROUSEL'];
+        const animationIndicator = document.getElementById('animation-indicator');
+        const animationName = document.getElementById('animation-name');
+        const animationDropdown = document.getElementById('animation-dropdown');
+        const animationOptions = document.querySelectorAll('.animation-option');
+        let animationLoops = {};
+        let entryCommenced = false;
+
+        // Setup indicator/selector functionality
+        if (animationIndicator && animationName) {
+            animationName.textContent = `✦ ${animationNames[selectedAnimation - 1]} ✦`;
+            console.log('Animation selector set to:', animationNames[selectedAnimation - 1]);
+            
+            // Toggle dropdown on click
+            animationIndicator.addEventListener('click', (e) => {
+                if (!entryCommenced) {
+                    animationDropdown.classList.toggle('open');
+                    e.stopPropagation();
+                }
+            });
+
+            // Setup animation options
+            animationOptions.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    if (!entryCommenced) {
+                        const newAnim = parseInt(option.dataset.animation);
+                        if (newAnim !== selectedAnimation) {
+                            selectedAnimation = newAnim;
+                            animationName.textContent = `✦ ${animationNames[selectedAnimation - 1]} ✦`;
+                            
+                            // Update active state
+                            animationOptions.forEach(opt => opt.classList.remove('active'));
+                            option.classList.add('active');
+                            
+                            // Hide dropdown
+                            animationDropdown.classList.remove('open');
+                            
+                            // Reinitialize animation
+                            cleanupAnimation();
+                            initSelectedAnimation();
+                        }
+                        e.stopPropagation();
+                    }
+                });
+            });
+
+            // Mark initial animation as active
+            document.querySelector(`[data-animation="${selectedAnimation}"]`).classList.add('active');
+
+            // Close dropdown when clicking elsewhere
+            document.addEventListener('click', () => {
+                if (!entryCommenced) {
+                    animationDropdown.classList.remove('open');
+                }
+            });
+        } else {
+            console.error('Animation selector elements not found');
+        }
+
+        // ==========================================
+        // CLEANUP FUNCTION
+        // ==========================================
+        function cleanupAnimation() {
+            if (animationLoops.chladni) cancelAnimationFrame(animationLoops.chladni);
+            if (animationLoops.cosmic) cancelAnimationFrame(animationLoops.cosmic);
+            document.getElementById('gallery-grid-container').classList.remove('active');
+            document.getElementById('viewport-3d-anim1').classList.remove('active');
+            document.getElementById('viewport-3d').classList.remove('active');
+            document.getElementById('chladni-container').innerHTML = '';
+            document.getElementById('world-cylinder').innerHTML = '';
+            document.getElementById('gallery').innerHTML = '';
+        }
+
+        // ==========================================
+        // ROUTE TO CORRECT ANIMATION
+        // ==========================================
+        function initSelectedAnimation() {
+            if (selectedAnimation === 1) {
+                initAnimation1();
+            } else if (selectedAnimation === 2) {
+                initAnimation2();
+            } else if (selectedAnimation === 3) {
+                initAnimation3();
+            }
+        }
+
+        // ==========================================
+        // ANIMATION 1: CHLADNI WALTZ (3D with oscillation)
+        // ==========================================
+        const selectedPhotosAnim1 = selectRandomPhotos(PHOTOS, 9);
+        
+        function initAnimation1() {
+            const containerRoom = document.getElementById('chladni-container');
+            containerRoom.innerHTML = '';
+            
+            let objectsLibrary = [];
+            let worldTime = 0.0;
+
+            // Create cards with Chladni Waltz layout
+            selectedPhotosAnim1.forEach((photo, idx) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('photo-card-anim1');
+                cardElement.style.backgroundImage = `url('${PHOTOS_FOLDER}${photo}')`;
+                containerRoom.appendChild(cardElement);
+
+                // Chladni Waltz positioning: horizontal line with oscillation
+                const posX = -900.0 + (idx * 220.0);
+                const posZ = -400.0;
+                const posY = 0;
+                const rotY = -0.15;
+
+                objectsLibrary.push({
+                    element: cardElement,
+                    index: idx,
+                    basePosX: posX,
+                    basePosY: posY,
+                    basePosZ: posZ,
+                    rotY: rotY
+                });
+
+                // Staggered fade-in
+                setTimeout(() => {
+                    cardElement.style.opacity = '1';
+                }, 300 + (idx * 250));
+            });
+
+            document.getElementById('viewport-3d-anim1').classList.add('active');
+
+            // Animation loop for Chladni Waltz
+            function animateChladniWaltz() {
+                animationLoops.chladni = requestAnimationFrame(animateChladniWaltz);
+                worldTime += 0.007;
+
+                // Subtle sway of the entire container
+                let swayY = Math.cos(worldTime) * 4.0;
+                let swayX = Math.sin(worldTime * 0.5) * 5.0;
+                containerRoom.style.transform = `
+                    translateZ(-300px)
+                    rotateY(${swayY}deg)
+                    rotateX(${swayX}deg)
+                `;
+
+                // Update each card with vertical oscillation
+                for (let c = 0; c < objectsLibrary.length; c++) {
+                    let card = objectsLibrary[c];
+                    let idx = card.index;
+                    
+                    // Vertical oscillation (the characteristic of Chladni Waltz)
+                    let cy = Math.sin(worldTime * 1.5 + idx * 1.2) * 220.0;
+                    
+                    card.element.style.transform = `
+                        translate3d(${card.basePosX}px, ${cy}px, ${card.basePosZ}px)
+                        rotateY(${card.rotY}rad)
+                    `;
+                }
+            }
+            animateChladniWaltz();
+        }
+
+        // ==========================================
+        // ANIMATION 2: CINEMATIC VALLEY (Gallery Grid)
+        // ==========================================
+        const selectedPhotosAnim2 = selectRandomPhotos(PHOTOS, 9);
+        
+        function initAnimation2() {
+            const gallery = document.getElementById('gallery');
+            gallery.className = 'gallery-grid animation-2';
+            gallery.innerHTML = '';
+            
+            selectedPhotosAnim2.forEach((photo, index) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'photo-item';
+                photoDiv.style.backgroundImage = `url('${PHOTOS_FOLDER}${photo}')`;
+                photoDiv.style.backgroundSize = 'cover';
+                photoDiv.style.backgroundPosition = 'center';
+                
+                const overlayText = document.createElement('div');
+                overlayText.className = 'overlay-text';
+                overlayText.textContent = `Photo ${index + 1}`;
+                
+                photoDiv.appendChild(overlayText);
+                gallery.appendChild(photoDiv);
+            });
+
+            document.getElementById('gallery-grid-container').classList.add('active');
+        }
+
+        // ==========================================
+        // ANIMATION 3: COSMIC CAROUSEL
+        // ==========================================
+        const selectedPhotosAnim3 = selectRandomPhotos(PHOTOS, 9);
+        const cylinderRadius = 900;
+        const carouselSize = 9;
+
+        function initAnimation3() {
+            const containerRoom = document.getElementById('world-cylinder');
+            containerRoom.innerHTML = '';
+
+            selectedPhotosAnim3.forEach((photo, idx) => {
+                const arcRadian = (idx / carouselSize) * Math.PI * 2.0;
+                const floatAltY = Math.sin(arcRadian * 3.0) * 120.0;
+
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('photo-card');
+                cardElement.style.backgroundImage = `url('${PHOTOS_FOLDER}${photo}')`;
+                cardElement.style.transform = `rotateY(${-arcRadian}rad) translateY(${floatAltY}px) translateZ(${cylinderRadius}px)`;
+                
+                containerRoom.appendChild(cardElement);
+
+                setTimeout(() => {
+                    cardElement.style.opacity = '1';
+                }, 600 + (idx * 200));
+            });
+
+            document.getElementById('viewport-3d').classList.add('active');
+
+            // Animation loop for 3D rotation
+            let generalRotDegreeAxisY = 0;
+            let tempsCycleOndes = 0;
+            
+            function rotateCinematicCosmos() {
+                animationLoops.cosmic = requestAnimationFrame(rotateCinematicCosmos);
+                tempsCycleOndes += 0.005;
+                generalRotDegreeAxisY -= 0.12;
+
+                let respiroPitchAxisX = -8.0 + Math.sin(tempsCycleOndes) * 3.0;
+                let swayGoulieAxZs = Math.cos(tempsCycleOndes * 1.5) * 1.5;
+
+                containerRoom.style.transform = `
+                    translateZ(-1400px) 
+                    rotateX(${respiroPitchAxisX}deg) 
+                    rotateZ(${swayGoulieAxZs}deg)
+                    rotateY(${generalRotDegreeAxisY}deg) 
+                `;
+            }
+
+            rotateCinematicCosmos();
+        }
+
+        // ==========================================
+        // INITIALIZE ON PAGE LOAD
+        // ==========================================
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('progress-screen').classList.add('hidden');
+                initSelectedAnimation();
+                setTimeout(() => {
+                    document.getElementById('black-veil').style.opacity = '0';
+                }, 100);
+            }, 800);
+        });
+
+        // ==========================================
+        // CLICK TO ENTER (shared for all animations)
+        // ==========================================
+        document.body.addEventListener('click', () => {
+            if (!entryCommenced) {
+                entryCommenced = true;
+                const transitionVeil = document.getElementById('black-veil');
+                transitionVeil.style.opacity = '1';
+                
+                setTimeout(() => {
+                    window.location.href = 'lang/fr/clair/home.html';
+                }, 2000);
+            }
+        });
+
+        // ==========================================
+        // PROGRESS SCREEN ANIMATION
+        // ==========================================
+        window.addEventListener('load', () => {
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.animation = 'fillProgress 0.5s ease-in-out forwards';
+        });
+    </script>
+</body>
+</html>

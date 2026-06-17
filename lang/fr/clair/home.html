@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth" style="overflow-x: hidden;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Le Traducteur de l'Invisible - Coulouban</title>
+    <!-- Framework CSS Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Bibliothèque Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <!-- Polices -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="../../../theme-tokens.css" rel="stylesheet">
+    <script src="../../../js/palette-display.js"></script>
+    
+    <style>
+        body { margin: 0; background-color: #fdfcf8; font-family: 'Inter', sans-serif; color: #1a202c; overflow-x: hidden; }
+        h1, h2, h3, .font-playfair { font-family: 'Playfair Display', serif; }
+        
+        /* Arrière-plan 3D */
+        canvas { display: block; position: fixed; top: 0; left: 0; z-index: -1; pointer-events: none; opacity: 0.85; }
+        
+        /* Voile de transition */
+        #page-transition { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #fdfcf8; z-index: 9999; pointer-events: none; transition: opacity 1.5s ease-in-out; }
+        
+        /* Apparition au scroll */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* Ombre douce */
+        .text-shadow-light { text-shadow: 0 4px 12px rgba(253, 252, 248, 0.95), 0 0 20px rgba(253, 252, 248, 0.9); }
+
+        /* Style des champs du formulaire */
+        .input-field {
+            width: 100%; background-color: transparent; border-bottom: 1px solid #94a3b8; padding: 12px 0;
+            font-family: 'Inter', sans-serif; font-weight: 300; color: #0f172a; outline: none;
+            transition: all 0.3s ease; background: transparent;
+        }
+        .input-field:focus { border-bottom-color: #0891b2; }
+        .input-field::placeholder { color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; }
+        .color-gold { color: var(--color-gold); }
+        .color-violet { color: var(--color-violet); }
+        .color-histoire { color: var(--color-histoire); }
+        .color-poesie { color: var(--color-poesie); }
+        .color-galerie { color: var(--color-galerie); }
+        .color-experience { color: var(--color-experience); }
+        .color-contact { color: var(--color-contact); }
+
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-900 selection:text-white flex flex-col min-h-screen">
+
+    <div id="page-transition"></div>
+    <div id="canvas-container"></div>
+    <div id="bg-text"></div>
+
+    <!-- Navbar Minimaliste -->
+    <nav class="fixed w-full z-50 mix-blend-difference text-white relative">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6 w-full">
+            <!-- Groupe gauche: Logo + Langue + Actions -->
+            <div class="flex flex-col items-center md:items-start gap-4 w-full md:w-auto">
+
+                <!-- Groupe 1: Logo + Sélecteur de langue -->
+                <div class="flex items-center gap-4 md:gap-6">
+                    <a href="home.html" class="text-2xl font-playfair tracking-widest uppercase hover:opacity-70 transition-opacity">Coulouban</a>
+                    <div class="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase font-medium mix-blend-difference text-white border-l border-white/30 pl-4 md:pl-6">
+                        <span class="text-white">FR</span>
+                        <span class="text-white/40">/</span>
+                        <a href="../../en/light/home.html" class="text-white/60 hover:text-white transition-colors">EN</a>
+                        <span class="text-white/40">/</span>
+                        <a href="../../es/claro/home.html" class="text-white/60 hover:text-white transition-colors">ES</a>
+                        <span class="text-white/40">/</span>
+                        <a href="../../it/chiaro/home.html" class="text-white/60 hover:text-white transition-colors">IT</a>
+                    </div>
+                </div>
+
+                <!-- Groupe 3: Actions (Boutons cinématique + mode clair/sombre) -->
+                <div id="nav-actions" class="flex items-center gap-4 md:gap-6"></div>
+            </div>
+
+            <!-- Groupe 2: Menu principal -->
+            <div class="hidden md:flex space-x-8 text-[10px] md:text-xs uppercase tracking-[0.3em] font-light">
+                <a href="histoire.html" class="hover:text-cyan-400 transition-colors">L'histoire</a>
+                <a href="poesie.html" class="hover:text-cyan-400 transition-colors">Poésie</a>
+                <a href="galerie.html" class="hover:text-cyan-400 transition-colors">Galerie</a>
+                <a href="experience.html" class="hover:text-cyan-400 transition-colors">L'Expérience</a>
+                <a href="contact.html" class="hover:text-cyan-400 transition-colors">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu Principal -->
+    <main class="relative z-10 flex-grow w-full overflow-hidden">
+        <section class="min-h-screen flex flex-col justify-center items-center text-center px-4 pt-24 pb-20">
+            <p class="text-[10px] md:text-sm tracking-[0.5em] uppercase coulouban-rainbow-blue md:mb-12 reveal text-glow">Le Traducteur de l'Invisible.<br><br></p>
+            <h1 class="font-title leading-tight reveal w-full text-glow" style="transition-delay: 200ms;">
+                <span class="block font-sans text-sm sm:text-xl md:text-2xl font-light tracking-[0.3em] uppercase coulouban-rainbow-orange mb-4 md:mb-8">Nommer l'expérience.</span>
+                <span class="block text-4xl sm:text-6xl md:text-7xl font-light coulouban-rainbow-red mb-8">Peindre la musique.</span>
+                <span class="block text-4xl sm:text-6xl md:text-7xl font-light italic coulouban-rainbow-green">Faire chanter la lumière.</span>
+            </h1>
+        </section>
+        <section class="min-h-screen flex items-center justify-center px-6 md:px-24">
+            <div class="max-w-xl reveal text-center md:text-left mx-auto md:mx-0 text-glow">
+                <span class="text-[10px] md:text-xs tracking-[0.4em] coulouban-rainbow uppercase mb-4 block">Coulouban<br><br></span>
+                <h2 class="text-4xl md:text-6xl font-title mb-6 leading-tight coulouban-rainbow-forest">La lumière est son nom<br><br></h2>
+                <p class="text-base md:text-lg font-light text-gray-400 mb-8 leading-relaxed">
+                Amoureux de la nature et de ses saints, de la nature et des siens, Coulouban marche avec admiration sur le chemin qu’est le sien.<br><br>
+
+                Semé de buches tragiques, de menhirs sacrés et d’êtres magiques, la route sinueuse le méne doucement vers la seule fin envisageable, la paix de la liberté.<br><br>
+
+                Passioné par la vie, ce sont les jardins divins qui lui inspirent le souffle redempteur, plein de courage et d’honnêteté, qui le caractérise tant.<br><br>
+
+                Né en enfer avec le nom de la lumière, le parcours s’annonçait dès lors, tel un subtil mélange entre ordre et chaos.<br><br>
+
+                Coulouban c’est le cosmos tout entier habitant sa propre peau, c’est le soleil qui brille en projettant son ombre.<br><br>
+
+                Amoureux au clair de Lune, aucune plume ne peut le faire voler plus haut que l’amour qu’il ressent la haut, dans son coeur.<br><br>
+
+                L’infini de l’Eternel mystère le fascine, l’émerveille et le surprend à chaque fois que son oeil cligne et s’ouvre.<br><br>
+
+                C’est ce chant profond qu’il s’efforce de transmettre simplement à travers son art complexe.<br><br>
+
+                La poésie est sa première création.<br>
+                La peinture est sa méditation favorite.<br>
+                La musique est sa manière de vivre.<br><br>
+
+                A sa façon, singulière, il se déplace et le mouvement comme une douce vague d'eau de mer<br><br>
+
+                Coulouban ne joue pas avec la Musique, il prend son instrument et le souffle divin fait le reste.                
+                </p>
+            </div>
+        </section>
+        <section class="min-h-screen flex items-center md:justify-start px-6 md:px-24">
+            <div class="max-w-xl reveal text-center md:text-left mx-auto md:mx-0 text-glow">
+                <span class="text-[10px] md:text-xs tracking-[0.4em] coulouban-rainbow-blue uppercase mb-4 block">Chapitre I</span>
+                <h2 class="text-4xl md:text-6xl font-title mb-6 leading-tight coulouban-rainbow-blue">La Métamorphose<br>du Silence</h2>
+                <p class="text-base md:text-lg font-light text-gray-400 mb-8 leading-relaxed">Il y a sept ans, Coulouban s’est effacé derrière la roche. Dans le ventre d'une grotte, loin des horloges, il a entamé une conversation avec le silence. Le temps de l’apprentissage a été balayé par la nécessité du souffle.</p>
+                <a href="histoire.html" class="uppercase tracking-[0.2em] text-[10px] md:text-xs font-medium hover:text-white transition-all relative group inline-block">
+                    <span class="coulouban-rainbow-blue">Découvrir l'histoire</span>
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#dbeafe] via-[var(--color-histoire)] to-[#172554] transition-all duration-300 group-hover:w-full"></span>
+                </a>            
+            </div>
+        </section>
+        <section class="min-h-screen flex items-center md:justify-end px-6 md:px-24 text-center md:text-right">
+            <div class="max-w-xl reveal mx-auto md:mx-0 text-glow">
+                <span class="text-[10px] md:text-xs tracking-[0.4em] coulouban-rainbow-orange uppercase mb-4 block">Chapitre II</span>
+                <h2 class="text-4xl md:text-6xl font-title mb-6 leading-tight coulouban-rainbow-orange">L'Encre<br>et le Souffle</h2>
+                <p class="text-base md:text-lg font-light text-gray-400 mb-8 leading-relaxed">Avant la note et la couleur, il y a la nécessité de nommer. Les mots ne sont pas de simples reflets, ils sont l'origine. Les poésies de Coulouban sont des prières cosmiques couchées sur le papier.</p>
+                <a href="poesie.html" class="uppercase tracking-[0.2em] text-[10px] md:text-xs font-medium hover:text-white transition-all relative group inline-block pb-2">
+                    <span class="coulouban-rainbow-orange">Lire les fragments</span>
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#fed7aa] via-[var(--color-poesie)] to-[#db2777] transition-all duration-500 ease-out group-hover:w-full"></span>
+                </a>            
+            </div>
+        </section>
+        <section class="min-h-screen flex items-center md:justify-start px-6 md:px-24 text-center md:text-left">
+            <div class="max-w-xl reveal mx-auto md:mx-0 text-glow">
+                <span class="text-[10px] md:text-xs tracking-[0.4em] coulouban-rainbow-red uppercase mb-4 block">Chapitre III</span>
+                <h2 class="text-4xl md:text-6xl font-title mb-6 leading-tight coulouban-rainbow-red">L'Aquarelle<br>des Sons</h2>
+                <p class="text-base md:text-lg font-light text-gray-400 mb-8 leading-relaxed">La frontière entre les arts n’existe pas. Ce qu’il entend dans le secret de son esprit est une symétrie mathématique. S’il ne la joue pas, il la peint. Ses toiles sont les visages de ses mélodies.</p>
+                <a href="galerie.html" class="uppercase tracking-[0.2em] text-[10px] md:text-xs font-medium hover:text-white transition-all relative group inline-block pb-2">
+                    <span class="coulouban-rainbow-red">Explorer les icônes</span>
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#fbcfe8] via-[var(--color-galerie)] to-[#dc2626] transition-all duration-500 ease-out group-hover:w-full"></span>
+                </a>            
+            </div>
+        </section>
+        <section class="min-h-screen flex items-center md:justify-end px-6 md:px-24 text-center md:text-right pb-32">
+            <div class="max-w-xl reveal mx-auto md:mx-0 text-glow">
+                <span class="text-[10px] md:text-xs tracking-[0.4em] coulouban-rainbow-green uppercase mb-4 block">Chapitre IV</span>
+                <h2 class="text-4xl md:text-6xl font-title mb-6 leading-tight coulouban-rainbow-green">La Danse <br>du Vide.</h2>
+                <p class="text-base md:text-lg font-light text-gray-400 mb-8 leading-relaxed">Son accordéon n'est pas un instrument, c'est un diffuseur de fréquence. Dans ses concerts, l’espace se dilate et le temps semble s'arrêter. Le public s’abandonne et plonge dans un état hypnotique.</p>
+                <a href="experience.html" class="uppercase tracking-[0.2em] text-[10px] md:text-xs font-medium hover:text-white transition-all relative group inline-block pb-2">
+                    <span class="coulouban-rainbow-green">Vivre l'expérience</span>
+                    <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#a7f3d0] via-[var(--color-experience)] to-[#064e3b] transition-all duration-500 ease-out group-hover:w-full"></span>
+                </a>            
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- DÉBUT DU FOOTER PROFESSIONNEL              -->
+    <!-- ========================================== -->
+
+    <footer class="w-full bg-[#fdfcf8] border-t border-black/10 text-black py-16 mt-auto z-20 relative">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center md:items-start space-y-10 md:space-y-0 text-center md:text-left">
+            
+            <!-- Marque et copyright -->
+            <div class="flex flex-col items-center md:items-start space-y-4">
+                <a href="home.html" class="coulouban-rainbow-mix text-3xl font-title tracking-widest uppercase hover:opacity-70 transition-opacity">Coulouban</a>
+                <span class="coulouban-rainbow-forest font-light tracking-[0.2em] text-gray-500 uppercase">Le traducteur de l'invisible</span>
+                <p class="text-[10px] tracking-[0.1em] text-gray-600 uppercase pt-4 hidden md:block">Webmaster : Coulouban<br><br>© 2026 Coulouban. Tous droits réservés.</p>
+
+            </div>
+
+            <!-- Liens rapides -->
+            <div class="flex flex-col items-center md:items-start space-y-3 text-xs tracking-[0.2em] uppercase font-medium">
+                <a href="histoire.html" class="color-histoire hover:text-black transition-colors">Histoire</a>
+                <a href="poesie.html" class="color-poesie hover:text-black transition-colors">Poésie</a>
+                <a href="galerie.html" class="color-galerie hover:text-black transition-colors">Galerie</a>
+                <a href="experience.html" class="color-experience hover:text-black transition-colors">L'Expérience</a>
+                <a href="contact.html" class="color-contact hover:text-black transition-colors">Contact</a>
+                <a href="../../../accueil/soon.html" target="_blank" class="coulouban-rainbow hover:text-black transition-colors mt-2">Boutique</a>
+            </div>
+
+            <!-- Réseaux sociaux (icônes SVG pures) -->
+            <div class="social-newsletter-wrapper flex flex-col items-center space-y-6">
+                <!-- Icônes sociales -->
+                <div class="flex space-x-6">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/coulouban369/" target="_blank" aria-label="Instagram" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 1.77-6.98 6.276C.014 8.336 0 8.744 0 12c0 3.259.014 3.667.072 4.947.2 4.358 1.77 6.78 6.276 6.98 1.28.058 1.689.072 4.947.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-1.771 6.979-6.276.059-1.28.073-1.689.073-4.947 0-3.259-.014-3.667-.072-4.947-.196-4.354-1.778-6.78-6.276-6.98-1.28-.058-1.688-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    </a>
+                    <!-- YouTube -->
+                    <a href="https://www.youtube.com/@coulouban369" target="_blank" aria-label="YouTube" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                    </a>
+                    <!-- Spotify -->
+                    <a href="https://open.spotify.com/intl-fr/artist/40ZLiin1GRg2mBDbgf1gbN?si=x7ZT8P-2TGKA66u-Rfu88Q" target="_blank" aria-label="Spotify" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.24.394-.756.522-1.15.281-3.15-1.926-7.114-2.361-11.782-1.293-.453.104-.913-.18-1.018-.632-.104-.453.18-.913.633-1.018 5.093-1.164 9.479-.668 13.036 1.512.395.241.523.757.281 1.15zm1.428-3.189c-.301.492-.938.647-1.43.346-3.603-2.215-9.13-2.827-13.687-1.543-.54.152-1.106-.162-1.258-.702-.152-.54.162-1.106.702-1.258 5.251-1.482 11.36-1.22 15.672 1.433.492.301.647.938.346 1.43zm.116-3.342C14.779 8.213 8.571 8 5.006 9.083c-.636.195-1.309-.163-1.504-.799-.195-.636.163-1.309.799-1.504 4.084-1.24 10.96-1.014 15.82 1.872.573.34.761 1.08.421 1.653-.34.573-1.08.761-1.653.421z"/></svg>
+                    </a>
+                </div>
+                <!-- Script newsletter -->
+            </div>
+        </div>
+        
+        <!-- 👇 NOUVEAU : copyright mobile (apparaît seulement sur mobile) -->
+        <div class="block md:hidden text-center mt-8">
+            <p class="text-[10px] tracking-[0.1em] text-gray-600 uppercase">
+                Webmaster : Coulouban<br>© 2026 Coulouban. Tous droits réservés.
+            </p>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- FIN DU FOOTER PROFESSIONNEL                -->
+    <!-- ========================================== -->
+
+    <script src="../../../js/animation-config.js"></script>
+    <script src="../../../js/newsletter.js"></script>
+    <script src="../../../js/theme-toggle.js"></script>
+    
+    <script>
+        const ANIM_CFG = window.AnimationConfig || {
+            mouseInteraction: { sensitivity: 0.001, attractionForce: 0.8, damping: 0.05 },
+            colorDynamics: { cycleSpeed: 1 }
+        };
+        const getThemeColor = (name, fallback) => {
+            const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            return new THREE.Color(value || fallback);
+        };
+        const popColor = (name, fallback, saturationBoost = 0.24, lightnessDrop = 0.14) => {
+            const color = getThemeColor(name, fallback);
+            const hsl = { h: 0, s: 0, l: 0 };
+            color.getHSL(hsl);
+            color.setHSL(hsl.h, Math.min(1, hsl.s + saturationBoost), Math.max(0, hsl.l - lightnessDrop));
+            return color;
+        };
+        // Transition fondu
+        window.addEventListener('load', () => {
+            setTimeout(() => { document.getElementById('page-transition').style.opacity = '0'; }, 100);
+        });
+
+        // Texte géant au scroll
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            document.getElementById('bg-text').style.transform = `translateY(-50%) translateX(${-scrollY * 0.4}px)`;
+        });
+
+        // Apparition des éléments
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('active'); });
+        }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // =========================================================
+        // 3D ANIMATION: Sphères de particules concentriques
+        // Couches de particules multiples avec vitesses de rotation indépendantes
+        // =========================================================
+        const vShader = `
+            uniform float uTime; uniform float uRadius;
+            attribute float aPhi; attribute float aTheta; attribute float aSpeedFactor;
+            varying vec3 vColor; attribute vec3 aColor;
+            void main() {
+                float currentTheta = aTheta + uTime * 0.03 * aSpeedFactor;
+                vec3 pos;
+                pos.x = uRadius * sin(aPhi) * cos(currentTheta);
+                pos.y = uRadius * sin(aPhi) * sin(currentTheta);
+                pos.z = uRadius * cos(aPhi);
+                
+                vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+                gl_Position = projectionMatrix * mvPosition;
+                gl_PointSize = uRadius < 100.0 ? 1.0 : (uRadius < 300.0 ? 1.2 : 1.5); 
+                vColor = aColor;
+            }
+        `;
+        const fShader = `
+            uniform float uOpacity; varying vec3 vColor;
+            void main() { gl_FragColor = vec4(vColor, uOpacity); }
+        `;
+
+        let scene, camera, renderer, particlesGroup;
+
+        function init3D() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+            camera.position.z = 900;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            particlesGroup = new THREE.Group();
+            scene.add(particlesGroup);
+
+            function createSphere(radius, count, opacity) {
+                const geo = new THREE.BufferGeometry();
+                const pos = new Float32Array(count * 3);
+                const phi = new Float32Array(count);
+                const theta = new Float32Array(count);
+                const speed = new Float32Array(count);
+                const colors = new Float32Array(count * 3);
+
+                const palette = [
+                    popColor('--color-violet', '#4c1d95'),
+                    popColor('--color-contact', '#06b6d4'),
+                    popColor('--color-experience', '#10b981'),
+                    popColor('--color-gold', '#fcd34d')
+                ];
+
+                for (let i = 0; i < count; i++) {
+                    const p = Math.acos(-1 + (2 * i) / count);
+                    const t = Math.sqrt(count * Math.PI) * p;
+                    phi[i] = p + (Math.random() - 0.5) * 0.05;
+                    theta[i] = t;
+                    speed[i] = 0.5 + Math.random() * 1.5;
+
+                    pos[i*3] = radius * Math.sin(p) * Math.cos(t);
+                    pos[i*3+1] = radius * Math.sin(p) * Math.sin(t);
+                    pos[i*3+2] = radius * Math.cos(p);
+
+                    const col = palette[Math.floor(Math.random() * palette.length)];
+                    colors[i*3] = col.r; colors[i*3+1] = col.g; colors[i*3+2] = col.b;
+                }
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+                geo.setAttribute('aPhi', new THREE.BufferAttribute(phi, 1));
+                geo.setAttribute('aTheta', new THREE.BufferAttribute(theta, 1));
+                geo.setAttribute('aSpeedFactor', new THREE.BufferAttribute(speed, 1));
+                geo.setAttribute('aColor', new THREE.BufferAttribute(colors, 3));
+
+                return new THREE.Points(geo, new THREE.ShaderMaterial({
+                    vertexShader: vShader, fragmentShader: fShader,
+                    uniforms: { uTime: { value: 0 }, uRadius: { value: radius }, uOpacity: { value: opacity } },
+                    transparent: true, blending: THREE.NormalBlending, depthWrite: false
+                }));
+            }
+
+            particlesGroup.add(createSphere(80, 20000, 0.7));  
+            particlesGroup.add(createSphere(200, 15000, 0.4)); 
+            particlesGroup.add(createSphere(400, 10000, 0.3)); 
+            particlesGroup.add(createSphere(650, 8000, 0.15)); 
+
+            // Désactivation temporaire de l'effet de zoom au scroll sur mobile pour la fluidité
+            const isMobile = window.innerWidth < 768;
+            
+            if (!isMobile) {
+                window.addEventListener('scroll', () => {
+                    const scrollProgress = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+                    particlesGroup.rotation.x = scrollProgress * 1.5; 
+                    camera.position.z = 900 - (scrollProgress * 400); 
+                });
+            }
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        const clock = new THREE.Clock();
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const time = clock.getElapsedTime();
+            
+            particlesGroup.children.forEach((child, index) => {
+                child.material.uniforms.uTime.value = time * ANIM_CFG.colorDynamics.cycleSpeed;
+                if(index === 0) child.rotation.y += 0.0010; 
+                if(index === 1) child.rotation.y -= 0.0005; 
+                if(index === 2) child.rotation.y += 0.0008;
+                if(index === 3) { child.rotation.y += 0.0003; child.rotation.z += 0.0002; }
+            });
+            
+            renderer.render(scene, camera);
+        }
+
+        init3D(); animate3D();
+    </script>
+</body>
+</html>

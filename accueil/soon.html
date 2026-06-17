@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coming Soon - Pulsations Quantiques</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(to right, #000 50%, #fff 50%);
+            font-family: 'Arial Black', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- CONTENEUR QUANTIQUE CENTRAL --- */
+        .quantum-environment {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            /* Permet l'inversion automatique noir/blanc de tout ce qui est à l'intérieur */
+            mix-blend-mode: difference; 
+        }
+
+        .quantum-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid #fff; /* Base blanche, inversée par le mix-blend-mode */
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            width: 700px;
+            height: 700px;
+            opacity: 0;
+        }
+
+        /* --- 1. ONDES QUANTIQUES (Fluctuations d'amplitude) --- */
+        .wave {
+            animation: quantum-pulse 5s infinite cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .wave-1 { animation-delay: 0s; }
+        .wave-2 { animation-delay: 1.25s; }
+        .wave-3 { animation-delay: 2.5s; }
+        .wave-4 { animation-delay: 3.75s; }
+
+        @keyframes quantum-pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0.9;
+                filter: blur(4px);
+                border-width: 8px;
+            }
+            50% {
+                filter: blur(0px);
+                border-width: 2px;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0;
+                filter: blur(15px);
+                border-width: 1px;
+            }
+        }
+
+        /* --- 2. ORBITALES DE SPIN (Intrication et rotation) --- */
+        .spin-cw {
+            border-style: dashed;
+            animation: spin-clockwise 8s infinite linear;
+        }
+        .spin-ccw {
+            border-style: dotted;
+            border-width: 4px;
+            animation: spin-counter-clockwise 6s infinite linear;
+        }
+
+        @keyframes spin-clockwise {
+            0% { transform: translate(-50%, -50%) scale(0.2) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.5; }
+            90% { opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(0.9) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes spin-counter-clockwise {
+            0% { transform: translate(-50%, -50%) scale(0.8) rotate(360deg); opacity: 0; }
+            15% { opacity: 0.4; }
+            85% { opacity: 0.4; }
+            100% { transform: translate(-50%, -50%) scale(0.1) rotate(0deg); opacity: 0; }
+        }
+
+        /* --- TEXTE AU CENTRE --- */
+        .text-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            font-size: 5rem;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            pointer-events: none;
+            mix-blend-mode: difference;
+            color: #fff;
+        }
+
+        .coming {
+            text-align: right;
+            width: 50vw;
+            padding-right: 30px;
+        }
+
+        .soon {
+            text-align: left;
+            width: 50vw;
+            padding-left: 30px;
+        }
+
+        /* Adaptation responsive pour les petits écrans */
+        @media (max-width: 768px) {
+            .text-container { font-size: 2.5rem; }
+            .coming { padding-right: 15px; }
+            .soon { padding-left: 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quantum-environment">
+        <div class="quantum-ring wave wave-1"></div>
+        <div class="quantum-ring wave wave-2"></div>
+        <div class="quantum-ring wave wave-3"></div>
+        <div class="quantum-ring wave wave-4"></div>
+
+        <div class="quantum-ring spin-cw"></div>
+        <div class="quantum-ring spin-ccw"></div>
+    </div>
+
+    <div class="text-container">
+        <span class="coming">Coming<br>Bientôt</span>
+        <span class="soon">Soon<br>Disponible</span>
+    </div>
+
+</body>
+</html>

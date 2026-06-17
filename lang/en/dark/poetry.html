@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en" style="overflow-x: hidden;">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <title>Gallery - Coulouban</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&amp;family=Montserrat:wght@200;300;400;500&amp;display=swap" rel="stylesheet"/>
+    <link href="../../../theme-tokens.css" rel="stylesheet"/>
+    <script src="../../../js/palette-display.js"></script>
+    <script>
+        (function() {
+            // Vérifie si un thème a déjà été attribué pour cette session de navigation
+            let currentTheme = sessionStorage.getItem('coulouban-theme');
+            
+            if (!currentTheme) {
+                // S'il n'y a pas de thème, on génère un nombre aléatoire entre 0 et 6
+                currentTheme = Math.floor(Math.random() * 7).toString();
+                // On le sauvegarde pour qu'il reste le même en changeant de page
+                sessionStorage.setItem('coulouban-theme', currentTheme);
+            }
+            
+            // Applique le thème à la balise <html> de la page
+            document.documentElement.setAttribute('data-theme', currentTheme);
+        })();
+    </script>
+    <style>
+        html, body { max-width: 100%; overflow-x: hidden; background-color: #030305; color: #fdfcf8; }
+        body { font-family: 'Montserrat', sans-serif; font-weight: 300; }
+        h1, h2, h3, .font-title { font-family: 'Cormorant Garamond', serif; }
+        canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; opacity: 0.8; }
+        #page-transition { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #030305; z-index: 9999; pointer-events: none; transition: opacity 1.5s ease-in-out; }
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        .text-glow { text-shadow: 0 4px 20px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 0, 0, 0.8); }
+        .color-gold { color: var(--color-gold); }
+        .color-violet { color: var(--color-violet); }
+        .color-histoire { color: var(--color-histoire); }
+        .color-poesie { color: var(--color-poesie); }
+        .color-galerie { color: var(--color-galerie); }
+        .color-experience { color: var(--color-experience); }
+        .color-contact { color: var(--color-contact); }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-violet-700 selection:text-white flex flex-col min-h-screen">
+    <div id="page-transition"></div>
+    <div id="canvas-container"></div>
+    <nav class="fixed w-full z-50 text-white bg-black/10 backdrop-blur-md border-b border-white/5 relative">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6 w-full">
+            <!-- Groupe gauche: Logo + Langue + Actions -->
+            <div class="flex flex-col items-center md:items-start gap-4 w-full md:w-auto">
+                <!-- Groupe 1: Logo + Sélecteur de langue -->
+                <div class="flex items-center gap-4 md:gap-6">
+                    <a href="home.html" class="text-2xl font-title tracking-widest uppercase hover:opacity-70 transition-opacity text-white">Coulouban</a>
+                    <div class="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase font-medium border-l border-white/20 pl-4 md:pl-6 text-white">
+                        <a class="text-white/60 hover:text-white transition-colors" href="../../fr/obscur/poesie.html">FR</a>
+                        <span class="text-white/40">/</span>
+                        <span class="text-white">EN</span>
+                        <span class="text-white/40">/</span>
+                        <a class="text-white/60 hover:text-white transition-colors" href="../../es/oscuro/poesia.html">ES</a>
+                        <span class="text-white/40">/</span>
+                        <a class="text-white/60 hover:text-white transition-colors" href="../../es/oscuro/poesia.html">IT</a>
+                    </div>
+                </div>
+                <!-- Groupe 3: Actions (Boutons cinématique + mode clair/sombre) -->
+                <div class="flex items-center gap-4 md:gap-6" id="nav-actions"></div>
+            </div>
+            <!-- Groupe 2: Menu principal -->
+            <div class="hidden md:flex space-x-8 text-[10px] md:text-xs uppercase tracking-[0.3em] font-medium">
+                <a class="color-histoire hover:text-white transition-colors drop-shadow-md" href="story.html">The Story</a>
+                <a class="color-poesie drop-shadow-md border-poesie pb-1" href="poetry.html">Poetry</a>
+                <a class="color-galerie hover:text-white transition-colors drop-shadow-md" href="gallery.html">Gallery</a>
+                <a class="color-experience hover:text-white transition-colors drop-shadow-md" href="experience.html">The Experience</a>
+                <a class="color-contact hover:text-white transition-colors drop-shadow-md" href="contact.html">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- z-index 10 : disposition au-dessus de la visualisation cymatique -->
+    <main class="relative z-10 pt-40 pb-32 px-6 md:px-12 max-w-7xl mx-auto flex flex-col space-y-32 flex-grow w-full">
+        
+        <header class="max-w-3xl text-left reveal text-glow">
+            <p class="text-[10px] md:text-xs tracking-[0.4em] color-poesie uppercase mb-6 drop-shadow-sm">The Word</p>
+            <h1 class="text-5xl md:text-7xl font-title leading-tight mb-8 color-poesie">
+                The ink and <br>
+                <span class="italic color-poesie">the breath.</span>
+            </h1>
+        </header>
+
+        <section class="max-w-xl reveal text-glow">
+            <h2 class="text-4xl font-title mb-8 color-poesie">Naming the invisible</h2>
+            <div class="font-light text-gray-400 leading-relaxed text-lg space-y-6">
+                <p>
+                    Before note and color, there is the need to give a name. Writing is the first foundation, the first echo of the cave.
+                </p>
+                <p>
+                    Words are not mere reflections of Coulouban’s thought—they are its origin. They map his inner visions and trace the contours of the frequencies he is about to play.
+                </p>
+            </div>
+        </section>
+
+        <!-- Cadre décoré sur le côté Or du Poème (Flottant à droite sur Desktop, centré en bas sur Mobile) -->
+        <section class="max-w-xl reveal self-end text-right text-glow mt-12">
+            <h2 class="text-4xl font-title mb-10 color-poesie">Fragments of the soul</h2>
+            <div class="font-title font-light text-gray-400 text-2xl md:text-3xl leading-loose italic space-y-4 border-r-2 border-amber-500 pr-6 drop-shadow-md">
+                <p>"The human being</p>
+                <p>Is like a well,</p>
+                <p>Without a bottom.</p>
+                <br>
+                <p>Do not try to fill it,</p>
+                <p>Then it will fill itself.</p>
+                <br>
+                <p>And of its own accord,</p>
+                <p>The spring will gush forth.".</p>
+            </div>
+        </section>
+
+        <section class="max-w-2xl mx-auto text-center reveal text-glow mt-20">
+            <h2 class="text-4xl font-title mb-8 color-poesie">Secular Prayers</h2>
+            <div class="font-light text-gray-400 leading-relaxed text-lg space-y-6">
+                <p>
+                    His collections are not merely read, they vibrate. Each poem is a seed, a mathematical sketch that will give birth to a cosmic icon or a melody on the accordion.
+                </p>
+                <p>
+                    It is a collection of silences captured in black ink on white paper, waiting for the light to pass through them.
+                </p>
+            </div>
+        </section>
+
+        <section class="text-center reveal mt-10">
+            <div class="flex flex-col items-center space-y-12">
+                <p class="text-[15px] md:text-xs tracking-[0.3em] uppercase coulouban-rainbow mb-2 drop-shadow-sm text-glow">Click on a poem to enlarge it
+                </p>
+                <div class="flex flex-col md:flex-row flex-wrap gap-4 md:gap-6 justify-center items-center w-full max-w-4xl">
+                    <a href="../../../accueil/soon.html" target="_blank" rel="noopener noreferrer" class="inline-block border border-current bg-black/40 backdrop-blur-sm px-6 py-3 uppercase tracking-[0.2em] text-[10px] md:text-xs font-medium color-poesie hover:!bg-[var(--color-poesie)] hover:!border-[var(--color-poesie)] hover:text-white transition-all duration-500 shadow-xl">Buy a poem from the shop</a>
+                </div>
+                <div class="pt-16 border-t border-white/10 w-full max-w-lg mx-auto">
+                    <p class="drop-shadow-sm font-light text-white-400 mb-8 text-glow text-base">Now that the words are written, it's time to paint the music.</p>
+                    <a href="gallery.html" class="inline-block border border-current bg-black/40 backdrop-blur-sm px-12 py-5 uppercase tracking-[0.2em] text-[10px] md:text-xs font-semibold color-galerie hover:!bg-[var(--color-galerie)] hover:!border-[var(--color-galerie)] hover:text-white transition-colors drop-shadow-md">Discover watercolour</a>
+                </div>
+                </div>
+            </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- DÉBUT DU FOOTER PROFESSIONNEL              -->
+    <!-- ========================================== -->
+     
+    <footer class="w-full bg-[#020203] border-t border-white/10 text-white py-16 mt-auto z-20 relative">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center md:items-start space-y-10 md:space-y-0 text-center md:text-left">
+        
+            <!-- Marque et droits d'auteur -->
+            <div class="flex flex-col items-center md:items-start space-y-4">
+                <a href="home.html" class="coulouban-rainbow-mix text-3xl font-title tracking-widest uppercase hover:opacity-70 transition-opacity">Coulouban</a>
+                <span class="coulouban-rainbow-forest font-light tracking-[0.2em] text-gray-500 uppercase">The Translator of the Invisible</span>
+                <p class="text-[10px] tracking-[0.1em] text-gray-600 uppercase pt-4 hidden md:block">Webmaster : Coulouban<br><br>© 2026 Coulouban. All rights reserved.</p>
+            </div>
+
+            <!-- Liens rapides -->
+            <div class="flex flex-col items-center md:items-start space-y-3 text-xs tracking-[0.2em] uppercase font-medium">
+                <a class="color-histoire hover:text-white transition-colors" href="story.html">The Story</a>
+                <a class="color-poesie border-poesie pb-1 transition-colors" href="poetry.html">Poetry</a>
+                <a class="color-galerie hover:text-white transition-colors" href="gallery.html">Gallery</a>
+                <a class="color-experience hover:text-white transition-colors" href="experience.html">The Experience</a>
+                <a class="color-contact hover:text-white transition-colors" href="contact.html">Contact</a>
+                <a class="coulouban-rainbow hover:text-white transition-colors mt-2" href="../../../accueil/soon.html" target="_blank">Shop</a>
+            </div>
+
+            <!-- Réseaux sociaux (icônes SVG pures) -->
+            <div class="social-newsletter-wrapper flex flex-col items-center space-y-6">
+
+                <!-- Icônes des réseaux sociaux -->
+                <div class="flex space-x-6">
+                    <!-- Instagram -->
+                    <a aria-label="Instagram" class="text-gray-400 hover:text-white transition-colors" href="https://www.instagram.com/coulouban369/" target="_blank">
+                        <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 1.77-6.98 6.276C.014 8.336 0 8.744 0 12c0 3.259.014 3.667.072 4.947.2 4.358 1.77 6.78 6.276 6.98 1.28.058 1.689.072 4.947.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-1.771 6.979-6.276.059-1.28.073-1.689.073-4.947 0-3.259-.014-3.667-.072-4.947-.196-4.354-1.778-6.78-6.276-6.98-1.28-.058-1.688-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+                    </a>
+                    <!-- YouTube -->
+                    <a aria-label="YouTube" class="text-gray-400 hover:text-white transition-colors" href="https://www.youtube.com/@coulouban369" target="_blank">
+                        <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path></svg>
+                    </a>
+                    <!-- Spotify -->
+                    <a aria-label="Spotify" class="text-gray-400 hover:text-white transition-colors" href="https://open.spotify.com/intl-fr/artist/40ZLiin1GRg2mBDbgf1gbN?si=x7ZT8P-2TGKA66u-Rfu88Q" target="_blank">
+                        <svg class="w-6 h-6" fill="currentColor" viewbox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.24.394-.756.522-1.15.281-3.15-1.926-7.114-2.361-11.782-1.293-.453.104-.913-.18-1.018-.632-.104-.453.18-.913.633-1.018 5.093-1.164 9.479-.668 13.036 1.512.395.241.523.757.281 1.15zm1.428-3.189c-.301.492-.938.647-1.43.346-3.603-2.215-9.13-2.827-13.687-1.543-.54.152-1.106-.162-1.258-.702-.152-.54.162-1.106.702-1.258 5.251-1.482 11.36-1.22 15.672 1.433.492.301.647.938.346 1.43zm.116-3.342C14.779 8.213 8.571 8 5.006 9.083c-.636.195-1.309-.163-1.504-.799-.195-.636.163-1.309.799-1.504 4.084-1.24 10.96-1.014 15.82 1.872.573.34.761 1.08.421 1.653-.34.573-1.08.761-1.653.421z"></path></svg>
+                    </a>
+                </div>
+                <!-- Script de newsletter -->
+            </div>
+        </div>
+
+        <!-- 👇 NOUVEAU : copyright mobile (apparaît seulement sur mobile) -->
+        <div class="block md:hidden text-center mt-8">
+            <p class="text-[10px] tracking-[0.1em] text-gray-600 uppercase">
+                Webmaster : Coulouban<br>© 2026 Coulouban. All rights reserved.
+            </p>
+        </div>
+    </footer>
+    <!-- ========================================== -->
+    <!-- FIN DU FOOTER PROFESSIONNEL                -->
+    <!-- ========================================== -->
+
+    <script src="../../../js/animation-config.js"></script>
+    <script src="../../../js/newsletter.js"></script>
+    <script src="../../../js/theme-toggle.js"></script>
+
+    <script>
+        (function() {
+            // Configuration par défaut (harmonisée avec galerie.html)
+            const ANIM_CFG = window.AnimationConfig || {
+                mouseInteraction: { sensitivity: 0.8, attractionForce: 0.045, damping: 0.05, influenceRadius: 1.0 },
+                colorDynamics: { cycleSpeed: 0.9 }
+            };
+
+            const getThemeColor = (name, fallback) => {
+                const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+                return new THREE.Color(value || fallback);
+            };
+
+            // Transition & scroll reveal
+            window.addEventListener('load', () => {
+                setTimeout(() => { document.getElementById('page-transition').style.opacity = '0'; }, 100);
+            });
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('active'); });
+            }, { threshold: 0.15 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+            // --- 3D Scene : Hybride Cycloïde Sphérique + Solénoïde Torique ---
+            let scene, camera, renderer, particleSystem;
+            let mouseX = 0, mouseY = 0, targetRotX = 0, targetRotZ = 0;
+            let scrollDrift = 0;
+            const halfX = window.innerWidth / 2, halfY = window.innerHeight / 2;
+            const clock = new THREE.Clock();
+
+            window.addEventListener('scroll', () => { scrollDrift = window.scrollY * 0.0016; });
+
+            function init3D() {
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 1, 3500);
+                camera.position.set(0, 200, 1400);
+                camera.lookAt(0, -20, 0);
+
+                renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                const pixelRatio = Math.min(window.devicePixelRatio, 1.5);
+                renderer.setPixelRatio(pixelRatio);
+                document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+                // --- Géométrie hybride (cycloïde sphérique + tore solénoïde) ---
+                const PARTICLE_COUNT = 100000;
+                const geometry = new THREE.BufferGeometry();
+
+                const positions = new Float32Array(PARTICLE_COUNT * 3);
+                const aType = new Float32Array(PARTICLE_COUNT);     // 0 = sphérique, 1 = torique
+                const aParam1 = new Float32Array(PARTICLE_COUNT);   // progression le long de la courbe
+                const aParam2 = new Float32Array(PARTICLE_COUNT);   // paramètre secondaire (épaisseur)
+                const aRandom = new Float32Array(PARTICLE_COUNT);
+
+                let idx = 0;
+
+                // --- Partie 1 : Cycloïde sphérique (40 000 points) ---
+                const CYCLOID_TURNS = 50.0 * Math.PI;
+                const SPHERE_RADIUS = 290.0;
+                const SPEED = 1.0;
+                const SWEEP = 2.4;
+                const LAT_AMP = 0.85;
+                const FREQ = 8.6;
+
+                for (let i = 0; i < 40000; i++) {
+                    const t = (i / 40000) * CYCLOID_TURNS;
+                    const lat = LAT_AMP * Math.sin(FREQ * t);
+                    const lng = SPEED * t + SWEEP * Math.cos(FREQ * t);
+                    const x = SPHERE_RADIUS * Math.cos(lat) * Math.cos(lng);
+                    const y = SPHERE_RADIUS * Math.sin(lat);
+                    const z = SPHERE_RADIUS * Math.cos(lat) * Math.sin(lng);
+
+                    positions[idx*3] = x;
+                    positions[idx*3+1] = y;
+                    positions[idx*3+2] = z;
+                    aType[idx] = 0;
+                    aParam1[idx] = t;
+                    aParam2[idx] = SPHERE_RADIUS;
+                    aRandom[idx] = Math.random();
+                    idx++;
+                }
+
+                // --- Partie 2 : Solénoïde torique (60 000 points) ---
+                const MAJOR_RADIUS = 840.0;
+                const MINOR_RADIUS = 240.0;
+                const TOTAL_ANGLE = 250.0 * Math.PI;
+                const P = 3.0;
+                const Q_SOLENOID = 48.0;
+                const THICKNESS = 55.0;
+
+                for (let i = 0; i < 60000; i++) {
+                    const t = (i / 60000) * TOTAL_ANGLE;
+                    const tubeRadius = MINOR_RADIUS + 40.0 * Math.sin(Q_SOLENOID * t);
+                    const u = P * t;
+                    const v = t;
+
+                    let x = (MAJOR_RADIUS + tubeRadius * Math.cos(v)) * Math.cos(u);
+                    let y = tubeRadius * Math.sin(v);
+                    let z = (MAJOR_RADIUS + tubeRadius * Math.cos(v)) * Math.sin(u);
+
+                    // Nuage aléatoire autour du nœud
+                    const spread = Math.pow(Math.random(), 0.5) * THICKNESS;
+                    const theta = Math.acos(2.0 * Math.random() - 1.0);
+                    const phi = 2.0 * Math.PI * Math.random();
+                    x += spread * Math.sin(theta) * Math.cos(phi);
+                    y += spread * Math.cos(theta);
+                    z += spread * Math.sin(theta) * Math.sin(phi);
+
+                    positions[idx*3] = x;
+                    positions[idx*3+1] = y;
+                    positions[idx*3+2] = z;
+                    aType[idx] = 1;
+                    aParam1[idx] = t;
+                    aParam2[idx] = spread;
+                    aRandom[idx] = Math.random();
+                    idx++;
+                }
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('aType', new THREE.BufferAttribute(aType, 1));
+                geometry.setAttribute('aParam1', new THREE.BufferAttribute(aParam1, 1));
+                geometry.setAttribute('aParam2', new THREE.BufferAttribute(aParam2, 1));
+                geometry.setAttribute('aRandom', new THREE.BufferAttribute(aRandom, 1));
+
+                // --- Shaders ---
+                const vertexShader = `
+                    uniform float uTime;
+                    uniform float uPixelRatio;
+                    attribute float aType;
+                    attribute float aParam1;
+                    attribute float aParam2;
+                    attribute float aRandom;
+                    varying float vType;
+                    varying float vFlow;
+                    varying float vSparkle;
+
+                    void main() {
+                        vec3 pos = position;
+                        float t = uTime * 0.8;
+
+                        if (aType < 0.5) {
+                            // Cycloïde sphérique : pulsation et ondulation
+                            float pulse = sin(t * 2.5 + aRandom * 6.283) * 8.0;
+                            pos += normalize(pos) * (pulse + aRandom * 5.0);
+                            pos.y += cos(pos.x * 0.05 - t * 2.0) * 15.0;
+                            vFlow = aParam1 / (50.0 * 3.14159);
+                        } else {
+                            // Solénoïde torique : mouvement ondulatoire
+                            float wave = sin(aParam1 * 25.0 - t * 1.5) * 45.0;
+                            pos.y += wave;
+                            pos.x += sin(pos.y * 0.015 + t) * 15.0;
+                            vFlow = aParam1 / (250.0 * 3.14159);
+
+                            // Pointes cristallines sur les bords extérieurs
+                            if (aParam2 > 35.0) {
+                                vec3 p = pos * 0.005;
+                                for (int k = 0; k < 3; k++) {
+                                    p = abs(p);
+                                    if (p.x - p.y < 0.0) p.xy = -p.yx;
+                                    if (p.x - p.z < 0.0) p.xz = -p.zx;
+                                    if (p.y - p.z < 0.0) p.yz = -p.zy;
+                                    p = p * 1.4 - vec3(35.0, 20.0, 35.0);
+                                }
+                                float lenP = length(p);
+                                float boost = smoothstep(35.0, 55.0, aParam2) * 45.0;
+                                pos += normalize(pos) * (lenP * boost * aRandom);
+                                vFlow += lenP * 0.15;
+                            }
+                        }
+
+                        vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+                        gl_PointSize = (1.5 + aRandom * 2.2) * uPixelRatio * (650.0 / max(-mvPos.z, 1.0));
+                        gl_Position = projectionMatrix * mvPos;
+
+                        vType = aType;
+                        vSparkle = 0.5 + 0.5 * sin(uTime * 4.8 + aRandom * 450.0);
+                    }
+                `;
+
+                const fragmentShader = `
+                    uniform float uTime;
+                    uniform vec3 uViolet;
+                    uniform vec3 uExperience;
+                    uniform vec3 uGold;
+                    uniform vec3 uhistoire;
+                    uniform vec3 uPoesie;
+                    uniform vec3 uGalerie;
+                    uniform vec3 uContact;
+                    varying float vType;
+                    varying float vFlow;
+                    varying float vSparkle;
+
+                    vec3 getCosmicColor(float t) {
+                        t = fract(t);
+                        float step = 1.0 / 7.0;
+                        if (t < step) return mix(uViolet, uhistoire, t/step);
+                        if (t < step * 2.0) return mix(uhistoire, uContact, (t - step)/step);
+                        if (t < step * 3.0) return mix(uContact, uExperience, (t - step * 2.0)/step);
+                        if (t < step * 4.0) return mix(uExperience, uGold, (t - step * 3.0)/step);
+                        if (t < step * 5.0) return mix(uGold, uPoesie, (t - step * 4.0)/step);
+                        if (t < step * 6.0) return mix(uPoesie, uGalerie, (t - step * 5.0)/step);
+                        return mix(uGalerie, uViolet, (t - step * 6.0)/step);
+                    }
+
+                    void main() {
+                        float dist = distance(gl_PointCoord, vec2(0.5));
+                        if (dist > 0.5) discard;
+
+                        vec3 color;
+                        float flow = vFlow * 0.55 - uTime * 0.15;
+
+                        if (vType < 0.5) {
+                            // Sphère centrale : défilement rapide de la palette
+                            color = getCosmicColor(flow * 2.0);
+                        } else {
+                            // Tores extérieurs : défilement standard
+                            color = getCosmicColor(flow);
+                            // Brillance dorée sur les bords extérieurs
+                            if (vFlow > 0.8) {
+                                float flare = smoothstep(0.8, 2.2, vFlow);
+                                color = mix(color, uGold, flare * 0.5);
+                            }
+                        }
+
+                        float intensity = (0.5 - dist) * 2.85;
+                        float alpha = intensity * vSparkle * 1.55;
+                        gl_FragColor = vec4(color, alpha);
+                    }
+                `;
+
+                const material = new THREE.ShaderMaterial({
+                    uniforms: {
+                        uTime: { value: 0 },
+                        uPixelRatio: { value: pixelRatio },
+                        uViolet: { value: getThemeColor('--color-violet', '#4c1d95') },
+                        uExperience: { value: getThemeColor('--color-experience', '#10b981') },
+                        uGold: { value: getThemeColor('--color-gold', '#fcd34d') },
+                        uhistoire: { value: getThemeColor('--color-histoire', '#8b5cf6') },
+                        uPoesie: { value: getThemeColor('--color-poesie', '#f59e0b') },
+                        uGalerie: { value: getThemeColor('--color-galerie', '#ef4444') },
+                        uContact: { value: getThemeColor('--color-contact', '#06b6d4') }
+                    },
+                    vertexShader: vertexShader,
+                    fragmentShader: fragmentShader,
+                    transparent: true,
+                    depthWrite: false,
+                    blending: THREE.AdditiveBlending
+                });
+
+                particleSystem = new THREE.Points(geometry, material);
+                particleSystem.frustumCulled = false;
+                particleSystem.position.y = -65;
+                particleSystem.rotation.x = Math.PI / 18;
+                scene.add(particleSystem);
+
+                // --- Interactions ---
+                document.addEventListener('mousemove', (e) => {
+                    mouseX = (e.clientX - halfX) * ANIM_CFG.mouseInteraction.sensitivity;
+                    mouseY = (e.clientY - halfY) * ANIM_CFG.mouseInteraction.sensitivity;
+                });
+
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                    material.uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 1.5);
+                });
+            }
+
+            function animate3D() {
+                requestAnimationFrame(animate3D);
+                if (!particleSystem) return;
+                const time = clock.getElapsedTime();
+
+                targetRotX = mouseY * ANIM_CFG.mouseInteraction.attractionForce;
+                targetRotZ = mouseX * ANIM_CFG.mouseInteraction.attractionForce;
+
+                particleSystem.rotation.x += ANIM_CFG.mouseInteraction.damping * (targetRotX - particleSystem.rotation.x + Math.PI / 15 + scrollDrift * 0.35);
+                particleSystem.rotation.z += ANIM_CFG.mouseInteraction.damping * (targetRotZ - particleSystem.rotation.z);
+                particleSystem.rotation.y += 0.0015;
+
+                particleSystem.material.uniforms.uTime.value = time * ANIM_CFG.colorDynamics.cycleSpeed;
+                renderer.render(scene, camera);
+            }
+
+            init3D();
+            animate3D();
+        })();
+    </script>
+</body>
+</html>

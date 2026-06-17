@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La storia</title>
+    <!-- Framework CSS Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <!-- Polices -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="../../../theme-tokens.css" rel="stylesheet">
+    <script src="../../../js/palette-display.js"></script>
+    
+    <style>
+        body { margin: 0; background-color: #fdfcf8; font-family: 'Inter', sans-serif; color: #1a202c; overflow-x: hidden; }
+        h1, h2, h3, .font-playfair { font-family: 'Playfair Display', serif; }
+        
+        /* Arrière-plan 3D */
+        canvas { display: block; position: fixed; top: 0; left: 0; z-index: -1; pointer-events: none; opacity: 0.85; }
+        
+        /* Voile de transition */
+        #page-transition { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #fdfcf8; z-index: 9999; pointer-events: none; transition: opacity 1.5s ease-in-out; }
+        
+        /* Apparition au scroll */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+        
+        /* Ombre douce */
+        .text-shadow-light { text-shadow: 0 4px 12px rgba(253, 252, 248, 0.95), 0 0 20px rgba(253, 252, 248, 0.9); }
+
+        /* Style des champs du formulaire */
+        .input-field {
+            width: 100%; background-color: transparent; border-bottom: 1px solid #94a3b8; padding: 12px 0;
+            font-family: 'Inter', sans-serif; font-weight: 300; color: #0f172a; outline: none;
+            transition: all 0.3s ease; background: transparent;
+        }
+        .input-field:focus { border-bottom-color: #0891b2; }
+        .input-field::placeholder { color: #94a3b8; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; }
+        .color-gold { color: var(--color-gold); }
+        .color-violet { color: var(--color-violet); }
+        .color-histoire { color: var(--color-histoire); }
+        .color-poesie { color: var(--color-poesie); }
+        .color-galerie { color: var(--color-galerie); }
+        .color-experience { color: var(--color-experience); }
+        .color-contact { color: var(--color-contact); }
+    </style>
+
+</head>
+<body class="antialiased selection:bg-cyan-900 selection:text-white">
+
+    <!-- Voile de transition -->
+    <div id="page-transition"></div>
+
+    <!-- Conteneur de la sphere -->
+    <div id="canvas-container"></div>
+
+    <!-- Navbar Minimaliste -->
+    <nav class="fixed w-full z-50 mix-blend-difference text-white relative">
+        
+        <div class="max-w-7xl mx-auto px-6 md:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6 w-full">
+                    <!-- Groupe gauche: Logo + Langue + Actions -->
+            <div class="flex flex-col items-center md:items-start gap-4 w-full md:w-auto">
+                    <!-- Groupe 1: Logo + Sélecteur de langue -->
+                <div class="flex items-center gap-4 md:gap-6">
+                    <a href="home.html" class="text-2xl font-playfair tracking-widest uppercase hover:opacity-70 transition-opacity">Coulouban</a>
+                    <div class="flex items-center gap-2 text-[10px] tracking-[0.25em] uppercase font-medium mix-blend-difference text-white border-l border-white/30 pl-4 md:pl-6">
+                        <a href="../../fr/clair/histoire.html" class="text-white/60 hover:text-white transition-colors">FR</a>
+                        <span class="text-white/40">/</span>
+                        <a href="../../en/light/story.html" class="text-white/60 hover:text-white transition-colors">EN</a>
+                        <span class="text-white/40">/</span>
+                        <a href="../../es/claro/historia.html" class="text-white/60 hover:text-white transition-colors">ES</a>
+                        <span class="text-white/40">/</span>
+                        <span class="text-white">IT</span>
+                    </div>
+                </div>
+                <!-- Groupe 3: Actions (Boutons cinématique + mode clair/sombre) -->
+                <div id="nav-actions" class="flex items-center gap-4 md:gap-6"></div>
+            </div>
+
+            <!-- Groupe 2: Menu principal -->
+
+            <div class="hidden md:flex space-x-8 text-[10px] md:text-xs uppercase tracking-[0.3em] font-light">
+                <a href="storia.html" class="text-cyan-400 transition-colors">La storia</a>
+                <a href="poesia.html" class="hover:text-cyan-400 transition-colors">Poesia</a>
+                <a href="galleria.html" class="hover:text-cyan-400 transition-colors">Galleria</a>
+                <a href="esperienza.html" class="hover:text-cyan-400 transition-colors">L'Esperienza</a>
+                <a href="contatti.html" class="hover:text-cyan-400 transition-colors">Contatti</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu Principal -->
+    <main class="relative z-10 pt-40 pb-32 px-6 md:px-12 max-w-7xl mx-auto flex flex-col space-y-40 flex-grow w-full">
+        <header class="max-w-3xl text-left reveal text-glow">
+            <p class="text-[10px] md:text-xs tracking-[0.4em] color-histoire uppercase mb-6 drop-shadow-sm">Genesi</p>
+            <h1 class="text-5xl md:text-7xl font-title leading-tight mb-8 color-histoire">
+                La metamorfosi<br>
+                <span class="italic color-histoire">del silenzio.</span></span>
+            </h1>
+        </header>
+        <section class="max-w-2xl reveal text-glow">
+            <h2 class="text-4xl font-title mb-8 color-histoire">Il ventre della roccia</h2>
+            <div class="font-light text-gray-400 leading-relaxed text-lg space-y-6">
+                <p>Molti anni fa, il tumulto del mondo è diventato troppo pesante. Coulouban si è nascosto dietro la roccia per cercare ciò che non si sentiva più in superficie.</p>
+                <p>Nel silenzio assoluto di una grotta, privo di orologi e di punti di riferimento, ha iniziato una conversazione intima con il silenzio. È lì, in questa penombra fertile avvolta da un sole divino, che è nato Coulouban. Un ritiro isolato dove lo strumento non era più un oggetto, ma un'estensione della sua anima. La stessa anima con cui impara ad amare giorno dopo giorno.</p>
+            </div>
+        </section>
+        <section class="max-w-2xl reveal self-end text-right text-glow mt-12">
+            <h2 class="text-4xl font-title mb-8 color-histoire">La necessità del suono</h2>
+            <div class="font-light text-gray-400 leading-relaxed text-lg space-y-6">
+                <p>In 3 giorni, trascorsi tra le braccia del suo primo accordeone, ha aperto una breccia nello spazio-tempo. Il tempo dell'apprendimento è stato spazzato via dalla necessità del respiro.</p>
+                <p>Da quel giorno, non suona più la musica nel senso classico : la lascia passare attraverso di lui. Diventa il ponte tra il silenzio della grotta e il caos del mondo moderno, trasformando l'accordeone in diffusore di frequenze armoniche.</p>
+            </div>
+        </section>
+        <section class="max-w-3xl mx-auto text-center reveal text-glow mt-20">
+            <h2 class="text-4xl font-title mb-8 color-histoire">Un'orchestra invisibile</h2>
+            <div class="font-light text-gray-400 leading-relaxed text-lg space-y-6">
+                <p>Quello che sente nel segreto della sua mente è una simmetria matematica, un linguaggio che le sole parole a volte faticano a contenere. È qui che inizia il resto della sua opera.</p>
+                <p>Se non lo suona, lo scrive. Se non lo scrive, lo dipinge.</p>
+            </div>
+            <div class="mt-16">
+                <a href="poesia.html" class="inline-block border border-current bg-black/40 backdrop-blur-sm px-10 py-5 uppercase tracking-[0.2em] text-[10px] md:text-xs font-semibold color-poesie hover:text-white transition-colors drop-shadow-md">Scopri la Poesia</a>
+            </div>
+        </section>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- DÉBUT DU FOOTER PROFESSIONNEL              -->
+    <!-- ========================================== -->
+     
+    <footer class="w-full bg-[#fdfcf8] border-t border-black/10 text-black py-16 mt-auto z-20 relative">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center md:items-start space-y-10 md:space-y-0 text-center md:text-left">
+            
+            <!-- Marque et copyright -->
+            <div class="flex flex-col items-center md:items-start space-y-4">
+                <a href="home.html" class="coulouban-rainbow-mix text-3xl font-title tracking-widest uppercase hover:opacity-70 transition-opacity">Coulouban</a>
+                <span class="coulouban-rainbow-forest font-light tracking-[0.2em] text-gray-500 uppercase">Il traduttore dell'invisibile</span>
+                <p class="text-[10px] tracking-[0.1em] text-gray-600 uppercase pt-4 hidden md:block">Webmaster : Coulouban<br><br>© 2026 Coulouban. Tutti i diritti riservati.</p>
+            </div>
+
+            <!-- Liens rapides -->
+            <div class="flex flex-col items-center md:items-start space-y-3 text-xs tracking-[0.2em] uppercase font-medium">
+                <a href="storia.html" class="color-histoire hover:text-black transition-colors">La storia</a>
+                <a href="poesia.html" class="color-poesie hover:text-black transition-colors">Poesia</a>
+                <a href="galleria.html" class="color-galerie hover:text-black transition-colors">Galleria</a>
+                <a href="esperienza.html" class="color-experience hover:text-black transition-colors">L'Esperienza</a>
+                <a href="contatti.html" class="color-contact hover:text-black transition-colors">Contatti</a>
+                <a href="../../../accueil/soon.html" target="_blank" class="coulouban-rainbow hover:text-black transition-colors mt-2">Negozio</a>
+            </div>
+
+            <!-- Réseaux sociaux (icônes SVG pures) -->
+            <div class="social-newsletter-wrapper flex flex-col items-center space-y-6">
+                <!-- Icônes sociales -->
+                <div class="flex space-x-6">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/coulouban369/" target="_blank" aria-label="Instagram" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 1.77-6.98 6.276C.014 8.336 0 8.744 0 12c0 3.259.014 3.667.072 4.947.2 4.358 1.77 6.78 6.276 6.98 1.28.058 1.689.072 4.947.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-1.771 6.979-6.276.059-1.28.073-1.689.073-4.947 0-3.259-.014-3.667-.072-4.947-.196-4.354-1.778-6.78-6.276-6.98-1.28-.058-1.688-.072-4.948-.072zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    </a>
+                    <!-- YouTube -->
+                    <a href="https://www.youtube.com/@coulouban369" target="_blank" aria-label="YouTube" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                    </a>
+                    <!-- Spotify -->
+                    <a href="https://open.spotify.com/intl-fr/artist/40ZLiin1GRg2mBDbgf1gbN?si=x7ZT8P-2TGKA66u-Rfu88Q" target="_blank" aria-label="Spotify" class="text-gray-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.24.394-.756.522-1.15.281-3.15-1.926-7.114-2.361-11.782-1.293-.453.104-.913-.18-1.018-.632-.104-.453.18-.913.633-1.018 5.093-1.164 9.479-.668 13.036 1.512.395.241.523.757.281 1.15zm1.428-3.189c-.301.492-.938.647-1.43.346-3.603-2.215-9.13-2.827-13.687-1.543-.54.152-1.106-.162-1.258-.702-.152-.54.162-1.106.702-1.258 5.251-1.482 11.36-1.22 15.672 1.433.492.301.647.938.346 1.43zm.116-3.342C14.779 8.213 8.571 8 5.006 9.083c-.636.195-1.309-.163-1.504-.799-.195-.636.163-1.309.799-1.504 4.084-1.24 10.96-1.014 15.82 1.872.573.34.761 1.08.421 1.653-.34.573-1.08.761-1.653.421z"/></svg>
+                    </a>
+                </div>
+                <!-- Script newsletter -->
+            </div>
+        </div>
+
+        <!-- 👇 NOUVEAU : copyright mobile (apparaît seulement sur mobile) -->
+        <div class="block md:hidden text-center mt-8">
+            <p class="text-[10px] tracking-[0.1em] text-gray-600 uppercase">
+                Webmaster : Coulouban<br>© 2026 Coulouban. Tutti i diritti riservati.
+            </p>
+        </div>
+    </footer>
+    <!-- ========================================== -->
+    <!-- FIN DU FOOTER PROFESSIONNEL                -->
+    <!-- ========================================== -->
+
+    <script src="../../../js/animation-config.js"></script>
+    <script src="../../../js/newsletter.js"></script>
+    <script src="../../../js/theme-toggle.js"></script>
+
+    <script>
+        const ANIM_CFG = window.AnimationConfig || {
+            mouseInteraction: { sensitivity: 0.001, attractionForce: 0.8, damping: 0.05 },
+            colorDynamics: { cycleSpeed: 1 }
+        };
+        const getThemeColor = (name, fallback) => {
+            const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            return new THREE.Color(value || fallback);
+        };
+        const popColor = (name, fallback, saturationBoost = 0.24, lightnessDrop = 0.14) => {
+            const color = getThemeColor(name, fallback);
+            const hsl = { h: 0, s: 0, l: 0 };
+            color.getHSL(hsl);
+            color.setHSL(hsl.h, Math.min(1, hsl.s + saturationBoost), Math.max(0, hsl.l - lightnessDrop));
+            return color;
+        };        // Transition d'entrée de page
+        window.addEventListener('load', () => {
+            setTimeout(() => { document.getElementById('page-transition').style.opacity = '0'; }, 100);
+        });
+
+        // Apparition des éléments au scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { 
+                if(entry.isIntersecting) { entry.target.classList.add('active'); }
+            });
+        }, { threshold: 0.15, rootMargin: "0px 0px -50px 0px" });
+        
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // =========================================================
+        // ANIMATION 3D : L'Icosaèdre Organique (Effet Cavor / Perlin)
+        // =========================================================
+
+        const canvasContainer = document.getElementById('canvas-container');
+        let scene, camera, renderer, blobMesh;
+        
+        let mouseX = 0; let mouseY = 0;
+        let targetX = 0; let targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        function init3D() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 400; // Positionnement optimal
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            canvasContainer.appendChild(renderer.domElement);
+
+            // GÉOMÉTRIE: Un icosaèdre très détaillé (des milliers de points)
+            const geometry = new THREE.IcosahedronGeometry(130, 40);
+
+            // SHADER : Fonction de bruit 3D compactée pour déformer la sphère
+            const vertexShader = `
+                uniform float uTime;
+                varying float vNoise;
+
+                // Fonction de bruit pseudo-aléatoire optimisée
+                vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+                vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+                float snoise(vec3 v) {
+                    const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+                    const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+                    vec3 i  = floor(v + dot(v, C.yyy) );
+                    vec3 x0 = v - i + dot(i, C.xxx) ;
+                    vec3 g = step(x0.yzx, x0.xyz);
+                    vec3 l = 1.0 - g;
+                    vec3 i1 = min( g.xyz, l.zxy );
+                    vec3 i2 = max( g.xyz, l.zxy );
+                    vec3 x1 = x0 - i1 + C.xxx;
+                    vec3 x2 = x0 - i2 + C.yyy;
+                    vec3 x3 = x0 - D.yyy;
+                    i = mod289(i);
+                    vec4 p = permute( permute( permute(
+                                 i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+                               + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+                               + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+                    float n_ = 0.142857142857;
+                    vec3  ns = n_ * D.wyz - D.xzx;
+                    vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+                    vec4 x_ = floor(j * ns.z);
+                    vec4 y_ = floor(j - 7.0 * x_ );
+                    vec4 x = x_ *ns.x + ns.yyyy;
+                    vec4 y = y_ *ns.x + ns.yyyy;
+                    vec4 h = 1.0 - abs(x) - abs(y);
+                    vec4 b0 = vec4( x.xy, y.xy );
+                    vec4 b1 = vec4( x.zw, y.zw );
+                    vec4 s0 = floor(b0)*2.0 + 1.0;
+                    vec4 s1 = floor(b1)*2.0 + 1.0;
+                    vec4 sh = -step(h, vec4(0.0));
+                    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+                    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+                    vec3 p0 = vec3(a0.xy,h.x);
+                    vec3 p1 = vec3(a0.zw,h.y);
+                    vec3 p2 = vec3(a1.xy,h.z);
+                    vec3 p3 = vec3(a1.zw,h.w);
+                    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+                    p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+                    vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+                    m = m * m;
+                    return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
+                }
+
+                void main() {
+                    vec3 pos = position;
+                    
+                    // Déformation organique avec le Bruit de Perlin (Simplex)
+                    float noiseFreq = 0.012;
+                    float noiseAmp = 25.0;
+                    vec3 noisePos = vec3(pos.x * noiseFreq + uTime * 0.5, pos.y * noiseFreq + uTime * 0.4, pos.z * noiseFreq);
+                    float noise = snoise(noisePos) * noiseAmp;
+                    
+                    vec3 normal = normalize(pos);
+                    pos += normal * noise;
+                    
+                    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+                    gl_Position = projectionMatrix * mvPosition;
+                    
+                    // Ajustement de la taille des points pour l'élégance
+                    gl_PointSize = 2.5 * (300.0 / -mvPosition.z);
+                    vNoise = noise;
+                }
+            `;
+
+            const fragmentShader = `
+                uniform vec3 uColor1;
+                uniform vec3 uColor2;
+                varying float vNoise;
+
+                void main() {
+                    // Force la forme circulaire parfaite du point
+                    float dist = distance(gl_PointCoord, vec2(0.5));
+                    if (dist > 0.5) discard;
+                    
+                    // Le bruit (la déformation) change la couleur dynamiquement
+                    float mixValue = (vNoise + 25.0) / 50.0;
+                    vec3 finalColor = mix(uColor1, uColor2, mixValue);
+                    
+                    gl_FragColor = vec4(finalColor, 0.7);
+                }
+            `;
+
+            const material = new THREE.ShaderMaterial({
+                vertexShader: vertexShader,
+                fragmentShader: fragmentShader,
+                uniforms: {
+                    uTime: { value: 0 },
+                    uColor1: { value: popColor('--color-violet', '#4c1d95') }, // Cyan profond
+                    uColor2: { value: popColor('--color-gold', '#f59e0b') }  // Or / Cuivre
+                },
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.NormalBlending
+            });
+
+            blobMesh = new THREE.Points(geometry, material);
+            scene.add(blobMesh);
+
+            document.addEventListener('mousemove', onDocumentMouseMove);
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function onDocumentMouseMove(event) {
+            mouseX = (event.clientX - windowHalfX) * ANIM_CFG.mouseInteraction.sensitivity;
+            mouseY = (event.clientY - windowHalfY) * ANIM_CFG.mouseInteraction.sensitivity;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        const clock = new THREE.Clock();
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            const time = clock.getElapsedTime();
+
+            // InteractivitÃ© avec la souris (Cavor)
+            targetX = mouseX * ANIM_CFG.mouseInteraction.attractionForce;
+            targetY = mouseY * ANIM_CFG.mouseInteraction.attractionForce;
+            
+            blobMesh.rotation.x += ANIM_CFG.mouseInteraction.damping * (targetY - blobMesh.rotation.x);
+            blobMesh.rotation.y += ANIM_CFG.mouseInteraction.damping * (targetX - blobMesh.rotation.y);
+            
+            // Rotation lente et constante de la forme entière
+            blobMesh.rotation.z -= 0.0015;
+
+            // Envoi du temps au shader pour animer la déformation organique
+            blobMesh.material.uniforms.uTime.value = time * ANIM_CFG.colorDynamics.cycleSpeed;
+
+            renderer.render(scene, camera);
+        }
+
+        init3D();
+        animate3D();
+    </script>
+</body>
+</html>
+
+
+
